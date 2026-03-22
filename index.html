@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watermelon Garden</title>
+<style>
+  :root {
+    --sky-top: #9edfff;
+    --sky-bottom: #fff1b3;
+    --grass: #7fd25c;
+    --grass-dark: #4e9c39;
+    --soil: #8d5a2b;
+    --soil-dark: #6f4319;
+    --leaf: #39a652;
+    --leaf-light: #78de84;
+    --card: rgba(255, 248, 232, 0.92);
+    --ink: #173125;
+    --shadow: rgba(23, 49, 37, 0.18);
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Trebuchet MS", "Verdana", sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.5), transparent 18%),
+      linear-gradient(180deg, var(--sky-top), var(--sky-bottom) 56%, #9fe474 57%, var(--grass) 100%);
+    overflow: hidden;
+  }
+
+  .game {
+    max-width: 1080px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 14px;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 12px;
+  }
+
+  .topbar,
+  .footer {
+    display: grid;
+    gap: 10px;
+  }
+
+  .title-card,
+  .message,
+  .score-card {
+    background: var(--card);
+    border-radius: 24px;
+    box-shadow: 0 12px 24px var(--shadow);
+  }
+
+  .title-card {
+    padding: 14px 18px;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3.6rem);
+    line-height: 0.95;
+    color: #166534;
+  }
+
+  .subtitle {
+    margin: 8px 0 0;
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    font-weight: 700;
+  }
+
+  .hud {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .score-card {
+    padding: 14px 16px;
+    text-align: center;
+    font-weight: 800;
+  }
+
+  .score-card strong {
+    display: block;
+    margin-top: 2px;
+    font-size: 1.8rem;
+    color: #145725;
+  }
+
+  .scene {
+    position: relative;
+    min-height: 620px;
+    border-radius: 34px;
+    overflow: hidden;
+    box-shadow: 0 24px 50px var(--shadow);
+    background:
+      radial-gradient(circle at 85% 16%, rgba(255,255,255,0.7), transparent 16%),
+      linear-gradient(180deg, rgba(255,255,255,0.18), transparent 24%),
+      linear-gradient(180deg, transparent 58%, rgba(33, 129, 43, 0.18) 100%);
+  }
+
+  .grass {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 46%;
+    background: linear-gradient(180deg, #91dd69, var(--grass-dark));
+  }
+
+  .sun,
+  .cloud,
+  .bird,
+  .bucket,
+  .seed {
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .sun,
+  .cloud,
+  .bird,
+  .bucket,
+  .melon,
+  .seed {
+    touch-action: manipulation;
+  }
+
+  .sun {
+    position: absolute;
+    top: 26px;
+    right: 36px;
+    width: 98px;
+    height: 98px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff7b4, #ffd54d 60%, #f59e0b 100%);
+    box-shadow: 0 0 0 12px rgba(255, 216, 84, 0.22), 0 0 30px rgba(255, 207, 66, 0.45);
+  }
+
+  .sun::before,
+  .sun::after {
+    content: "";
+    position: absolute;
+    top: 34px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6b4200;
+  }
+
+  .sun::before {
+    left: 28px;
+    box-shadow: 28px 0 0 #6b4200;
+  }
+
+  .sun::after {
+    left: 36px;
+    top: 55px;
+    width: 24px;
+    height: 10px;
+    border-bottom: 4px solid #6b4200;
+    border-radius: 0 0 18px 18px;
+    background: transparent;
+  }
+
+  .cloud {
+    position: absolute;
+    top: 78px;
+    left: 36px;
+    width: 150px;
+    height: 62px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 34px -16px 0 12px rgba(255,255,255,0.95), 84px -6px 0 8px rgba(255,255,255,0.95);
+    animation: drift 14s linear infinite;
+  }
+
+  .cloud .face {
+    position: absolute;
+    left: 56px;
+    top: 20px;
+    width: 38px;
+    height: 18px;
+  }
+
+  .cloud .face::before,
+  .cloud .face::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #466273;
+  }
+
+  .cloud .face::before {
+    left: 4px;
+  }
+
+  .cloud .face::after {
+    right: 4px;
+  }
+
+  .cloud .face span {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 18px;
+    height: 8px;
+    border-bottom: 3px solid #466273;
+    border-radius: 0 0 12px 12px;
+    transform: translateX(-50%);
+  }
+
+  .bird {
+    position: absolute;
+    right: 180px;
+    top: 142px;
+    width: 110px;
+    height: 84px;
+    background: #ff7da6;
+    border-radius: 50% 52% 48% 48%;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+  }
+
+  .bird::before {
+    content: "";
+    position: absolute;
+    right: -12px;
+    top: 28px;
+    border-left: 20px solid #ffba3b;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+  }
+
+  .bird::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: 20px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #1f2130;
+    box-shadow: 30px 6px 0 -2px rgba(255,255,255,0.22);
+  }
+
+  .bird-wing {
+    position: absolute;
+    left: 30px;
+    top: 24px;
+    width: 42px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ff5f8b;
+  }
+
+  .bird-legs {
+    position: absolute;
+    left: 40px;
+    bottom: -16px;
+    width: 30px;
+    height: 18px;
+    border-bottom: 4px solid #ffba3b;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+  }
+
+  .seed-bank {
+    position: absolute;
+    left: 20px;
+    bottom: 28px;
+    width: 170px;
+    padding: 12px;
+    border-radius: 22px;
+    background: rgba(255, 248, 232, 0.9);
+    box-shadow: 0 12px 24px var(--shadow);
+  }
+
+  .seed-title {
+    margin: 0 0 8px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 900;
+    color: #14562a;
+  }
+
+  .seed-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .seed {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #5b3818, #2e1a09);
+    box-shadow: inset 0 5px 0 rgba(255,255,255,0.12), 0 6px 10px rgba(0,0,0,0.12);
+  }
+
+  .seed.used {
+    opacity: 0.22;
+    transform: scale(0.88);
+  }
+
+  .patch {
+    position: absolute;
+    left: 50%;
+    bottom: 100px;
+    transform: translateX(-50%);
+    width: min(80vw, 360px);
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 30%, #a97037, var(--soil) 64%, var(--soil-dark) 100%);
+    box-shadow: inset 0 10px 14px rgba(255,255,255,0.12);
+  }
+
+  .planted-seeds {
+    position: absolute;
+    left: 50%;
+    bottom: 172px;
+    width: 220px;
+    height: 70px;
+    transform: translateX(-50%);
+  }
+
+  .planted-seed {
+    position: absolute;
+    width: 18px;
+    height: 24px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #5b3818, #2e1a09);
+    opacity: 0;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  .planted-seed.show {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+
+  .plant {
+    position: absolute;
+    left: 50%;
+    bottom: 186px;
+    transform: translateX(-50%);
+    width: 240px;
+    height: 250px;
+  }
+
+  .vine {
+    position: absolute;
+    left: 50%;
+    bottom: 38px;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #58d36b, #218844);
+    transition: height 0.25s ease;
+  }
+
+  .leaf {
+    position: absolute;
+    width: 54px;
+    height: 30px;
+    border-radius: 50px 50px 0 50px;
+    background: linear-gradient(180deg, var(--leaf-light), var(--leaf));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .leaf.left {
+    left: 54px;
+    bottom: 110px;
+    transform: rotate(-18deg);
+  }
+
+  .leaf.right {
+    right: 54px;
+    bottom: 142px;
+    transform: scaleX(-1) rotate(-20deg);
+  }
+
+  .melon {
+    position: absolute;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%) scale(0.2);
+    width: 56px;
+    height: 56px;
+    border: 0;
+    border-radius: 50%;
+    background:
+      repeating-linear-gradient(90deg, #47b256 0 10px, #1c7432 10px 15px, #87e28a 15px 20px);
+    box-shadow: inset 0 10px 0 rgba(255,255,255,0.18), 0 12px 18px rgba(23,49,37,0.16);
+    transition: width 0.22s ease, height 0.22s ease, transform 0.22s ease;
+    cursor: pointer;
+  }
+
+  .melon::before,
+  .melon::after {
+    content: "";
+    position: absolute;
+  }
+
+  .melon::before {
+    top: 22%;
+    left: 28%;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #173125;
+    box-shadow: 24px 0 0 #173125;
+  }
+
+  .melon::after {
+    left: 50%;
+    bottom: 18%;
+    width: 22px;
+    height: 10px;
+    border-bottom: 4px solid #173125;
+    border-radius: 0 0 16px 16px;
+    transform: translateX(-50%);
+  }
+
+  .melon.grown {
+    transform: translateX(-50%) scale(1);
+    animation: bob 1s ease-in-out infinite;
+  }
+
+  .bucket {
+    position: absolute;
+    right: 26px;
+    bottom: 32px;
+    width: 190px;
+    min-height: 200px;
+    padding: 14px;
+    border-radius: 26px;
+    background: linear-gradient(180deg, #d59d58, #9b5e20);
+    border: 6px solid #7a4215;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  }
+
+  .bucket::before {
+    content: "";
+    position: absolute;
+    left: 28px;
+    right: 28px;
+    top: -42px;
+    height: 46px;
+    border: 7px solid #7a4215;
+    border-bottom: 0;
+    border-radius: 38px 38px 0 0;
+  }
+
+  .bucket-title {
+    margin: 0 0 10px;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: #fff5dd;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.12);
+  }
+
+  .bucket-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .bucket-fruit,
+  .bucket-empty {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 1.3rem;
+  }
+
+  .bucket-fruit {
+    background:
+      repeating-linear-gradient(90deg, #47b256 0 7px, #1c7432 7px 11px, #87e28a 11px 15px);
+    border: 4px solid rgba(255,255,255,0.15);
+    color: #173125;
+  }
+
+  .bucket-empty {
+    background: rgba(255,255,255,0.15);
+    border: 3px dashed rgba(255,255,255,0.22);
+    color: rgba(255,255,255,0.4);
+  }
+
+  .burst,
+  .song-notes {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    font-weight: 900;
+    opacity: 0;
+  }
+
+  .burst {
+    bottom: 392px;
+    font-size: 2rem;
+    color: white;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+
+  .song-notes {
+    right: 158px;
+    left: auto;
+    top: 110px;
+    transform: none;
+    font-size: 2rem;
+  }
+
+  .rain-drop {
+    position: absolute;
+    width: 10px;
+    height: 28px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15), rgba(25, 144, 221, 0.95));
+    animation: rain-fall 0.8s linear forwards;
+    pointer-events: none;
+  }
+
+  .message {
+    padding: 14px 16px;
+    min-height: 62px;
+    text-align: center;
+    font-size: clamp(1rem, 2vw, 1.12rem);
+    font-weight: 800;
+  }
+
+  @keyframes drift {
+    from { transform: translateX(0); }
+    to { transform: translateX(180px); }
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateX(-50%) scale(1) translateY(0); }
+    50% { transform: translateX(-50%) scale(1.04) translateY(-10px); }
+  }
+
+  @keyframes rain-fall {
+    0% { transform: translateY(-24px); opacity: 0; }
+    10% { opacity: 1; }
+    100% { transform: translateY(230px); opacity: 0; }
+  }
+
+  @media (max-width: 820px) {
+    .scene {
+      min-height: 780px;
+    }
+
+    .bucket {
+      right: 18px;
+      bottom: 18px;
+      width: 160px;
+    }
+
+    .seed-bank {
+      width: 150px;
+    }
+
+    .bird {
+      right: 130px;
+      top: 150px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .game {
+      padding: 10px;
+    }
+
+    .hud {
+      grid-template-columns: 1fr;
+    }
+
+    .scene {
+      min-height: 920px;
+    }
+
+    .cloud {
+      left: 16px;
+      top: 98px;
+      transform: scale(0.9);
+      transform-origin: left top;
+    }
+
+    .sun {
+      right: 18px;
+      top: 22px;
+      transform: scale(0.88);
+      transform-origin: right top;
+    }
+
+    .bird {
+      right: 24px;
+      top: 176px;
+      transform: scale(0.9);
+      transform-origin: right top;
+    }
+
+    .patch {
+      bottom: 230px;
+      width: min(88vw, 340px);
+    }
+
+    .planted-seeds {
+      bottom: 304px;
+    }
+
+    .plant {
+      bottom: 318px;
+    }
+
+    .seed-bank {
+      left: 50%;
+      bottom: 20px;
+      width: min(92vw, 340px);
+      transform: translateX(-50%);
+    }
+
+    .bucket {
+      left: 50%;
+      right: auto;
+      bottom: 160px;
+      width: min(86vw, 280px);
+      transform: translateX(-50%);
+    }
+
+    .bucket-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="game">
+    <section class="topbar">
+      <div class="title-card">
+        <h1>Watermelon Garden</h1>
+        <p class="subtitle">Click seeds to plant them. Then click the cloud, the sun, and the bird. When the watermelon is big enough, click it to toss it into the bucket.</p>
+      </div>
+      <div class="hud">
+        <div class="score-card">Watermelons Picked<strong id="score">0</strong></div>
+        <div class="score-card">What To Do<strong id="need">Plant 5 seeds</strong></div>
+      </div>
+    </section>
+
+    <section class="scene" id="scene">
+      <div class="grass" aria-hidden="true"></div>
+
+      <button class="sun" id="sunBtn" type="button" aria-label="Sun"></button>
+
+      <button class="cloud" id="cloudBtn" type="button" aria-label="Cloud">
+        <span class="face"><span></span></span>
+      </button>
+
+      <button class="bird" id="birdBtn" type="button" aria-label="Bird">
+        <span class="bird-wing"></span>
+        <span class="bird-legs"></span>
+      </button>
+
+      <div class="patch" aria-hidden="true"></div>
+
+      <div class="planted-seeds" id="plantedSeeds">
+        <div class="planted-seed" style="left:10px;bottom:0;"></div>
+        <div class="planted-seed" style="left:52px;bottom:14px;"></div>
+        <div class="planted-seed" style="left:98px;bottom:4px;"></div>
+        <div class="planted-seed" style="left:142px;bottom:16px;"></div>
+        <div class="planted-seed" style="left:184px;bottom:2px;"></div>
+      </div>
+
+      <div class="plant">
+        <div class="burst" id="burst">YAY!</div>
+        <div class="song-notes" id="songNotes">♪ ♫</div>
+        <div class="vine" id="vine"></div>
+        <div class="leaf left" id="leafLeft"></div>
+        <div class="leaf right" id="leafRight"></div>
+        <button class="melon" id="melonBtn" type="button" aria-label="Watermelon"></button>
+      </div>
+
+      <button class="bucket" id="bucketBtn" type="button" aria-label="Bucket of picked watermelons">
+        <span class="bucket-title">Picked So Far</span>
+        <span class="bucket-grid" id="bucketGrid"></span>
+      </button>
+
+      <div class="seed-bank">
+        <p class="seed-title">Seed Pile</p>
+        <div class="seed-list" id="seedList">
+          <button class="seed" type="button" aria-label="Seed 1"></button>
+          <button class="seed" type="button" aria-label="Seed 2"></button>
+          <button class="seed" type="button" aria-label="Seed 3"></button>
+          <button class="seed" type="button" aria-label="Seed 4"></button>
+          <button class="seed" type="button" aria-label="Seed 5"></button>
+          <button class="seed" type="button" aria-label="Seed 6"></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer">
+      <div class="message" id="message">Click five seeds to plant your watermelon patch.</div>
+    </section>
+  </main>
+
+<script>
+  const SEEDS_TO_PLANT = 5;
+  const state = {
+    planted: 0,
+    watered: false,
+    sunned: false,
+    sung: 0,
+    score: 0,
+    bucket: [],
+    audioContext: null
+  };
+
+  const scoreEl = document.getElementById("score");
+  const needEl = document.getElementById("need");
+  const messageEl = document.getElementById("message");
+  const sceneEl = document.getElementById("scene");
+  const seedButtons = [...document.querySelectorAll(".seed")];
+  const plantedSeedEls = [...document.querySelectorAll(".planted-seed")];
+  const cloudBtn = document.getElementById("cloudBtn");
+  const sunBtn = document.getElementById("sunBtn");
+  const birdBtn = document.getElementById("birdBtn");
+  const melonBtn = document.getElementById("melonBtn");
+  const bucketBtn = document.getElementById("bucketBtn");
+  const bucketGridEl = document.getElementById("bucketGrid");
+  const vineEl = document.getElementById("vine");
+  const leafLeftEl = document.getElementById("leafLeft");
+  const leafRightEl = document.getElementById("leafRight");
+  const burstEl = document.getElementById("burst");
+  const songNotesEl = document.getElementById("songNotes");
+
+  function getAudioContext() {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) {
+      return null;
+    }
+    if (!state.audioContext) {
+      state.audioContext = new AudioCtx();
+    }
+    if (state.audioContext.state === "suspended") {
+      state.audioContext.resume().catch(() => {});
+    }
+    return state.audioContext;
+  }
+
+  function playSound(type) {
+    const ctx = getAudioContext();
+    if (!ctx) {
+      return;
+    }
+
+    const now = ctx.currentTime;
+    const tones = {
+      seed: [420],
+      cloud: [280, 240, 210],
+      sun: [520, 640],
+      bird: [660, 740, 880],
+      melon: [380, 520, 680],
+      bucket: [250, 190]
+    };
+
+    tones[type].forEach((freq, index) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type === "cloud" ? "sine" : type === "bird" ? "triangle" : "square";
+      osc.frequency.setValueAtTime(freq, now + index * 0.05);
+      gain.gain.setValueAtTime(0.0001, now + index * 0.05);
+      gain.gain.linearRampToValueAtTime(0.08, now + index * 0.05 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.05 + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + index * 0.05);
+      osc.stop(now + index * 0.05 + 0.22);
+    });
+  }
+
+  function setMessage(text) {
+    messageEl.textContent = text;
+  }
+
+  function burst(text) {
+    burstEl.textContent = text;
+    burstEl.animate(
+      [
+        { opacity: 0, transform: "translateX(-50%) translateY(12px) scale(0.7)" },
+        { opacity: 1, transform: "translateX(-50%) translateY(-8px) scale(1)" },
+        { opacity: 0, transform: "translateX(-50%) translateY(-34px) scale(1.05)" }
+      ],
+      { duration: 700, easing: "ease-out" }
+    );
+  }
+
+  function singNotes() {
+    songNotesEl.animate(
+      [
+        { opacity: 0, transform: "translateY(8px) scale(0.8)" },
+        { opacity: 1, transform: "translateY(-6px) scale(1)" },
+        { opacity: 0, transform: "translateY(-28px) scale(1.06)" }
+      ],
+      { duration: 800, easing: "ease-out" }
+    );
+  }
+
+  function rainBurst() {
+    for (let i = 0; i < 14; i += 1) {
+      const drop = document.createElement("div");
+      drop.className = "rain-drop";
+      drop.style.left = `${32 + Math.random() * 36}%`;
+      drop.style.top = "110px";
+      drop.style.animationDelay = `${Math.random() * 0.12}s`;
+      sceneEl.appendChild(drop);
+      setTimeout(() => drop.remove(), 850);
+    }
+  }
+
+  function getNeedText() {
+    if (state.planted < SEEDS_TO_PLANT) {
+      return `Plant ${SEEDS_TO_PLANT - state.planted} more seeds`;
+    }
+    if (!state.watered) {
+      return "Click the cloud";
+    }
+    if (!state.sunned) {
+      return "Click the sun";
+    }
+    return state.sung === 0 ? "Click the bird" : "Bird or watermelon";
+  }
+
+  function getMelonSize() {
+    if (state.sung === 0) {
+      return 56;
+    }
+    return Math.min(220, 92 + (state.sung - 1) * 22);
+  }
+
+  function updateScene() {
+    scoreEl.textContent = String(state.score);
+    needEl.textContent = getNeedText();
+
+    plantedSeedEls.forEach((el, index) => {
+      el.classList.toggle("show", index < state.planted);
+    });
+
+    vineEl.style.height = state.watered ? "110px" : "0";
+    leafLeftEl.style.opacity = state.sunned ? "1" : "0";
+    leafRightEl.style.opacity = state.sunned ? "1" : "0";
+
+    const melonSize = getMelonSize();
+    melonBtn.style.width = `${melonSize}px`;
+    melonBtn.style.height = `${melonSize}px`;
+    melonBtn.classList.toggle("grown", state.sung > 0);
+  }
+
+  function renderBucket() {
+    bucketGridEl.innerHTML = "";
+    const shown = state.bucket.slice(-12);
+    shown.forEach((size) => {
+      const fruit = document.createElement("div");
+      fruit.className = "bucket-fruit";
+      fruit.textContent = size >= 150 ? "🍉" : "🙂";
+      fruit.style.transform = `scale(${Math.max(0.72, Math.min(1.08, size / 135))})`;
+      bucketGridEl.appendChild(fruit);
+    });
+    for (let i = shown.length; i < 12; i += 1) {
+      const empty = document.createElement("div");
+      empty.className = "bucket-empty";
+      empty.textContent = "·";
+      bucketGridEl.appendChild(empty);
+    }
+  }
+
+  function resetRound(message = "Click five seeds to plant your watermelon patch.") {
+    state.planted = 0;
+    state.watered = false;
+    state.sunned = false;
+    state.sung = 0;
+    seedButtons.forEach((btn) => btn.classList.remove("used"));
+    setMessage(message);
+    updateScene();
+  }
+
+  seedButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      playSound("seed");
+      if (state.planted >= SEEDS_TO_PLANT) {
+        setMessage("All the seeds are planted. Now click the cloud.");
+        burst("DONE!");
+        return;
+      }
+      if (button.classList.contains("used")) {
+        setMessage("That seed is already planted.");
+        burst("PLOP!");
+        return;
+      }
+
+      button.classList.add("used");
+      state.planted += 1;
+      updateScene();
+      burst("PLOP!");
+
+      if (state.planted >= SEEDS_TO_PLANT) {
+        setMessage("Nice planting. Now click the cloud to water the patch.");
+      } else {
+        setMessage(`${state.planted} seeds planted. Keep going.`);
+      }
+    });
+  });
+
+  cloudBtn.addEventListener("click", () => {
+    playSound("cloud");
+    if (state.planted < SEEDS_TO_PLANT) {
+      setMessage("Plant the seeds first.");
+      burst("WAIT!");
+      return;
+    }
+    if (state.watered) {
+      setMessage("The patch is already watered. Click the sun next.");
+      burst("SPLASH!");
+      return;
+    }
+    state.watered = true;
+    rainBurst();
+    updateScene();
+    burst("SPLASH!");
+    setMessage("Splash splash. The vine popped up. Now click the sun.");
+  });
+
+  sunBtn.addEventListener("click", () => {
+    playSound("sun");
+    if (!state.watered) {
+      setMessage("The cloud goes first.");
+      burst("WAIT!");
+      return;
+    }
+    if (state.sunned) {
+      setMessage("The patch is already sunny. Click the bird.");
+      burst("SHINE!");
+      return;
+    }
+    state.sunned = true;
+    sunBtn.animate(
+      [
+        { transform: "scale(1)" },
+        { transform: "scale(1.15)" },
+        { transform: "scale(1)" }
+      ],
+      { duration: 420, easing: "ease-out" }
+    );
+    updateScene();
+    burst("SHINE!");
+    setMessage("Warm sunshine. The leaves came out. Now click the bird.");
+  });
+
+  birdBtn.addEventListener("click", () => {
+    playSound("bird");
+    if (!state.sunned) {
+      setMessage("The sun should shine before the bird sings.");
+      burst("WAIT!");
+      return;
+    }
+    state.sung += 1;
+    singNotes();
+    updateScene();
+    if (state.sung === 1) {
+      burst("GROW!");
+      setMessage("The watermelon grew. Click the bird again to make it bigger, or click the watermelon to pick it.");
+    } else {
+      burst("BIGGER!");
+      setMessage("The watermelon got even bigger. Click the bird again or pick it now.");
+    }
+  });
+
+  melonBtn.addEventListener("click", () => {
+    playSound("melon");
+    if (state.sung === 0) {
+      setMessage("The watermelon is not ready yet. Let the bird sing first.");
+      burst("WAIT!");
+      return;
+    }
+
+    const size = getMelonSize();
+    state.score += 1;
+    state.bucket.push(size);
+    renderBucket();
+    updateScene();
+    burst("YUM!");
+    setMessage("Plop. The watermelon went into the bucket. Plant another patch.");
+    setTimeout(() => {
+      resetRound("Click five seeds to plant your next watermelon patch.");
+    }, 450);
+  });
+
+  bucketBtn.addEventListener("click", () => {
+    playSound("bucket");
+    if (state.bucket.length === 0) {
+      setMessage("The bucket is empty. Grow one first.");
+    } else {
+      setMessage(`Your bucket has ${state.bucket.length} watermelon${state.bucket.length === 1 ? "" : "s"}.`);
+    }
+  });
+
+  renderBucket();
+  updateScene();
+</script>
+</body>
+</html>
