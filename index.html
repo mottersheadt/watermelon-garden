@@ -1719,6 +1719,8 @@
     pointerId: null,
     audioContext: null,
     audioReady: false,
+    audioUnlocking: false,
+    pendingSound: null,
     toneReady: false,
     picnicSynth: null,
     picnicDrum: null
@@ -1840,9 +1842,19 @@
       return true;
     }
     if (ctx.state === "suspended") {
+      if (state.audioUnlocking) {
+        return false;
+      }
+      state.audioUnlocking = true;
       ctx.resume().then(() => {
         primeWebAudio(ctx);
         startToneAudio();
+        state.audioUnlocking = false;
+        if (state.pendingSound) {
+          const pending = state.pendingSound;
+          state.pendingSound = null;
+          playSound(pending.type, pending.customTones);
+        }
       }).catch(() => {});
       return false;
     }
@@ -1975,6 +1987,7 @@
       return;
     }
     if (!state.audioReady || ctx.state !== "running") {
+      state.pendingSound = { type, customTones };
       if (!ensureAudioUnlocked()) {
         return;
       }
