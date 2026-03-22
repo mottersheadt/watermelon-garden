@@ -447,6 +447,8 @@
     border-radius: 999px;
     background: linear-gradient(180deg, #58d36b, #218844);
     transition: height 0.25s ease;
+    z-index: 1;
+    pointer-events: none;
   }
 
   .plant-slot .leaf {
@@ -457,6 +459,8 @@
     background: linear-gradient(180deg, var(--leaf-light), var(--leaf));
     opacity: 0;
     transition: opacity 0.2s ease;
+    z-index: 2;
+    pointer-events: none;
   }
 
   .plant-slot .leaf.left {
@@ -484,6 +488,7 @@
     box-shadow: inset 0 10px 0 rgba(255,255,255,0.18), 0 12px 18px rgba(23,49,37,0.16);
     transition: width 0.22s ease, height 0.22s ease, transform 0.22s ease;
     overflow: visible;
+    z-index: 4;
   }
 
   .melon .melon-stem,
