@@ -883,6 +883,7 @@
 
   .celebration.show {
     opacity: 1;
+    pointer-events: auto;
   }
 
   .celebration-card {
@@ -905,6 +906,25 @@
     margin-top: 6px;
     font-size: 1.05rem;
     font-weight: 800;
+  }
+
+  .refresh-btn {
+    margin-top: 14px;
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 16px;
+    background: linear-gradient(180deg, #1fa95c, #167b42);
+    color: #fffdf1;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 10px 18px rgba(22, 123, 66, 0.24);
+  }
+
+  .refresh-btn .icon {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 1.1rem;
   }
 
   .picnic-blanket {
@@ -1449,6 +1469,9 @@
           <strong id="celebrationTitle">Yay!</strong>
           <span id="celebrationText">You picked some melons.</span>
           <div class="picnic-blanket" id="picnicBlanket"></div>
+          <button class="refresh-btn" id="refreshBtn" type="button">
+            <span class="icon" aria-hidden="true">↻↺</span>Refresh
+          </button>
         </div>
       </div>
 
@@ -1518,6 +1541,7 @@
   const celebrationEl = document.getElementById("celebration");
   const celebrationTitleEl = document.getElementById("celebrationTitle");
   const celebrationTextEl = document.getElementById("celebrationText");
+  const refreshBtn = document.getElementById("refreshBtn");
   const picnicBlanketEl = document.getElementById("picnicBlanket");
   const plantedSeedEls = [...document.querySelectorAll(".planted-seed")];
   const burstEl = document.getElementById("burst");
@@ -1843,7 +1867,6 @@
     celebrationEl.classList.add("show");
     createConfetti();
     playPicnicMusic();
-    setTimeout(() => celebrationEl.classList.remove("show"), 2400);
   }
 
   function maybeShowHelper() {
@@ -1876,19 +1899,25 @@
   }
 
   function getNextArrowTarget() {
+    if (state.dragging?.type === "seed") {
+      return { element: patchZoneEl, dx: 0, dy: -26, icon: "👇" };
+    }
+    if (state.dragging?.type === "melon") {
+      return { element: bucketBtn, dx: 0, dy: -40, icon: "👇" };
+    }
     if (state.usedSeeds.length < MAX_SEEDS) {
       const nextSeedIndex = Array.from({ length: MAX_SEEDS }, (_, index) => index)
         .find((index) => !state.usedSeeds.includes(index));
       return { element: seedButtons[nextSeedIndex], dx: 0, dy: -42, icon: "👇" };
     }
     if (!state.watered) {
-      return { element: cloudBtn, dx: 0, dy: -46, icon: "👇" };
+      return { element: cloudBtn, dx: 0, dy: 54, icon: "👆" };
     }
     if (!state.sunned) {
-      return { element: sunBtn, dx: 0, dy: -52, icon: "👇" };
+      return { element: sunBtn, dx: 0, dy: 58, icon: "👆" };
     }
     if (state.sung === 0) {
-      return { element: birdBtn, dx: 0, dy: -48, icon: "👇" };
+      return { element: birdBtn, dx: 0, dy: 54, icon: "👆" };
     }
     const nextMelonIndex = Array.from({ length: state.planted }, (_, index) => index)
       .find((index) => !state.harvestedThisRound.includes(index));
@@ -2149,10 +2178,7 @@
     if (left === 0) {
       burst("YUM!");
       showCelebration();
-      setMessage(`All picked. ${personality.name} and friends are ready for another round.`);
-      setTimeout(() => {
-        resetRound("Drag seeds onto the patch for the next round.");
-      }, 2400);
+      setMessage(`All picked. ${personality.name} and friends are having tea.`);
     } else {
       burst("PICK!");
       setMessage(`${personality.name} jumped in. ${left} watermelon${left === 1 ? "" : "s"} left.`);
@@ -2340,6 +2366,15 @@
     } else {
       setMessage(`The picnic basket has ${state.harvestedThisRound.length} watermelon${state.harvestedThisRound.length === 1 ? "" : "s"} this round.`);
     }
+  });
+
+  refreshBtn.addEventListener("click", () => {
+    ensureAudioUnlocked();
+    playSound("drop", [340, 420, 520]);
+    celebrationEl.classList.remove("show");
+    cleanupDrag();
+    state.score = 0;
+    resetRound("Drag seeds onto the patch to start planting.");
   });
 
   refreshMelonPersonalities();
