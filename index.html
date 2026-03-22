@@ -1470,7 +1470,7 @@
           <span id="celebrationText">You picked some melons.</span>
           <div class="picnic-blanket" id="picnicBlanket"></div>
           <button class="refresh-btn" id="refreshBtn" type="button">
-            <span class="icon" aria-hidden="true">↻↺</span>Refresh
+            <span class="icon" aria-hidden="true">↻</span>Play Again
           </button>
         </div>
       </div>
@@ -1898,7 +1898,14 @@
     funArrowEl.classList.add("show");
   }
 
+  function melonsReadyToPick() {
+    return state.sung >= 2;
+  }
+
   function getNextArrowTarget() {
+    if (celebrationEl.classList.contains("show")) {
+      return { element: refreshBtn, dx: 0, dy: -42, icon: "👇" };
+    }
     if (state.dragging?.type === "seed") {
       return { element: patchZoneEl, dx: 0, dy: -26, icon: "👇" };
     }
@@ -1917,6 +1924,9 @@
       return { element: sunBtn, dx: 0, dy: 58, icon: "👆" };
     }
     if (state.sung === 0) {
+      return { element: birdBtn, dx: 0, dy: 54, icon: "👆" };
+    }
+    if (!melonsReadyToPick()) {
       return { element: birdBtn, dx: 0, dy: 54, icon: "👆" };
     }
     const nextMelonIndex = Array.from({ length: state.planted }, (_, index) => index)
@@ -1966,12 +1976,8 @@
       slot.melon.classList.toggle("picked", state.harvestedThisRound.includes(index));
     });
 
-    if (celebrationEl.classList.contains("show")) {
-      funArrowEl.classList.remove("show");
-    } else {
-      const arrowTarget = getNextArrowTarget();
-      pointArrowAt(arrowTarget.element, arrowTarget.dx, arrowTarget.dy, arrowTarget.icon);
-    }
+    const arrowTarget = getNextArrowTarget();
+    pointArrowAt(arrowTarget.element, arrowTarget.dx, arrowTarget.dy, arrowTarget.icon);
   }
 
   function renderBucket() {
@@ -2082,7 +2088,7 @@
       singNotes();
       updateScene();
       burst(state.sung === 1 ? "GROW!" : "BIGGER!");
-      setMessage(state.sung === 1 ? `${state.planted} silly melons grew. Drag each one into the basket.` : "The watermelons got bigger. Drag them out or keep singing.");
+      setMessage(state.sung === 1 ? "The watermelons are growing. Sing one more time to make them ready to pick." : "The watermelons are fully grown. Drag each one into the basket.");
     }
   }
 
@@ -2234,9 +2240,9 @@
 
   melonButtons.forEach((melon, index) => {
     melon.addEventListener("pointerdown", (event) => {
-      if (state.sung === 0 || index >= state.planted || state.harvestedThisRound.includes(index)) {
+      if (!melonsReadyToPick() || index >= state.planted || state.harvestedThisRound.includes(index)) {
         playSound("error");
-        setMessage("Grow the watermelons first.");
+        setMessage("Sing to the watermelons until they are fully grown first.");
         return;
       }
       startDrag(event, "melon", index, melon, "🍉");
