@@ -434,7 +434,6 @@
     position: absolute;
     width: 116px;
     height: 200px;
-    transform: translateX(-50%);
   }
 
   .plant-slot .vine {
@@ -2173,7 +2172,7 @@
     const melonSize = getMelonSize();
     plantSlots.forEach((slot, index) => {
       const pos = SLOT_POSITIONS[index];
-      slot.el.style.left = `${pos.left}px`;
+      slot.el.style.left = `${pos.left - 58}px`;
       slot.el.style.top = `${pos.top}px`;
       slot.vine.style.height = state.watered && index < state.planted ? `${64 + index * 5 + Math.max(0, state.waterCount - 1) * 8}px` : "0";
       slot.leafLeft.style.opacity = state.sunned && index < state.planted ? "1" : "0";
