@@ -818,6 +818,33 @@
     font-size: 2rem;
   }
 
+  .fun-arrow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    font-size: 2.4rem;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.2));
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: left 220ms ease, top 220ms ease, opacity 180ms ease;
+    z-index: 12;
+  }
+
+  .fun-arrow.show {
+    opacity: 1;
+    animation: arrow-bob 900ms ease-in-out infinite;
+  }
+
+  @keyframes arrow-bob {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+    50% { transform: translate(-50%, -50%) translateY(-8px); }
+  }
+
   .rain-drop {
     position: absolute;
     width: 10px;
@@ -1318,12 +1345,12 @@
       </div>
       <div class="hud">
         <div class="score-card">Watermelons Picked<strong id="score">0</strong></div>
-        <div class="score-card">What To Do<strong id="need">Drag seeds to the patch</strong></div>
       </div>
     </section>
 
     <section class="scene" id="scene">
       <div class="grass" aria-hidden="true"></div>
+      <div class="fun-arrow" id="funArrow" aria-hidden="true">👇</div>
 
       <button class="sun" id="sunBtn" type="button" aria-label="Sun"></button>
 
@@ -1472,7 +1499,7 @@
   };
 
   const scoreEl = document.getElementById("score");
-  const needEl = document.getElementById("need");
+  const funArrowEl = document.getElementById("funArrow");
   const messageEl = document.getElementById("message");
   const sceneEl = document.getElementById("scene");
   const patchZoneEl = document.getElementById("patchZone");
@@ -1548,40 +1575,96 @@
     if (!state.audioContext) {
       state.audioContext = new AudioCtx();
     }
-    if (state.audioContext.state === "suspended") {
-      state.audioContext.resume().catch(() => {});
-    }
     return state.audioContext;
   }
 
-  function primeAudio() {
-    const ctx = getAudioContext();
-    const unlockWebAudio = () => {
-      if (!ctx || state.audioReady) {
-        return;
-      }
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(440, ctx.currentTime);
-      gain.gain.setValueAtTime(0.00001, ctx.currentTime);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.01);
-      state.audioReady = true;
-    };
-
-    if (ctx && ctx.state === "suspended") {
-      ctx.resume().then(unlockWebAudio).catch(() => {});
-    } else {
-      unlockWebAudio();
+  function primeWebAudio(ctx) {
+    if (!ctx || state.audioReady) {
+      return;
     }
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    gain.gain.setValueAtTime(0.00001, ctx.currentTime);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.01);
+    state.audioReady = true;
+  }
 
+  function startToneAudio() {
     if (window.Tone && !state.toneReady) {
       window.Tone.start().then(() => {
         state.toneReady = true;
       }).catch(() => {});
+    }
+  }
+
+  function ensureAudioUnlocked() {
+    const ctx = getAudioContext();
+    if (!ctx) {
+      return false;
+    }
+    if (ctx.state === "running") {
+      primeWebAudio(ctx);
+      startToneAudio();
+      return true;
+    }
+    if (ctx.state === "suspended") {
+      ctx.resume().then(() => {
+        primeWebAudio(ctx);
+        startToneAudio();
+      }).catch(() => {});
+      return false;
+    }
+    return false;
+  }
+
+  function primeAudio() {
+    ensureAudioUnlocked();
+  }
+
+  function playFallbackPicnicMusic() {
+    const ctx = getAudioContext();
+    if (!ctx) {
+      return;
+    }
+    if (!state.audioReady || ctx.state !== "running") {
+      if (!ensureAudioUnlocked()) {
+        return;
+      }
+    }
+
+    const now = ctx.currentTime + 0.08;
+    const melody = [523.25, 659.25, 783.99, 880, 783.99, 659.25, 587.33, 523.25];
+    melody.forEach((freq, index) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, now + index * 0.22);
+      gain.gain.setValueAtTime(0.0001, now + index * 0.22);
+      gain.gain.linearRampToValueAtTime(0.06, now + index * 0.22 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.22 + 0.18);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + index * 0.22);
+      osc.stop(now + index * 0.22 + 0.2);
+    });
+
+    [0, 0.44, 0.88, 1.32].forEach((offset) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(120, now + offset);
+      gain.gain.setValueAtTime(0.0001, now + offset);
+      gain.gain.linearRampToValueAtTime(0.05, now + offset + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.16);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + offset);
+      osc.stop(now + offset + 0.18);
     }
   }
 
@@ -1605,6 +1688,7 @@
 
   function playPicnicMusic() {
     if (!ensurePicnicInstruments()) {
+      playFallbackPicnicMusic();
       return;
     }
 
@@ -1657,7 +1741,15 @@
 
   function playSound(type, customTones) {
     const ctx = getAudioContext();
-    if (!ctx || !state.audioReady) {
+    if (!ctx) {
+      return;
+    }
+    if (!state.audioReady || ctx.state !== "running") {
+      if (!ensureAudioUnlocked()) {
+        return;
+      }
+    }
+    if (!state.audioReady || ctx.state !== "running") {
       return;
     }
 
@@ -1768,20 +1860,33 @@
     }
   }
 
-  function getNeedText() {
+  function pointArrowAt(element, dx = 0, dy = -34) {
+    const sceneRect = sceneEl.getBoundingClientRect();
+    const rect = element.getBoundingClientRect();
+    funArrowEl.style.left = `${rect.left - sceneRect.left + rect.width / 2 + dx}px`;
+    funArrowEl.style.top = `${rect.top - sceneRect.top + rect.height / 2 + dy}px`;
+    funArrowEl.classList.add("show");
+  }
+
+  function getNextArrowTarget() {
     if (state.planted === 0) {
-      return "Drag seeds to the patch";
+      return { element: patchZoneEl, dx: 0, dy: -22 };
     }
     if (!state.watered) {
-      return "Click the cloud";
+      return { element: cloudBtn, dx: 0, dy: 44 };
     }
     if (!state.sunned) {
-      return "Click the sun";
+      return { element: sunBtn, dx: 0, dy: 48 };
     }
     if (state.sung === 0) {
-      return "Click the bird";
+      return { element: birdBtn, dx: 0, dy: 48 };
     }
-    return `${state.planted - state.harvestedThisRound.length} melons left to pick`;
+    const nextMelonIndex = Array.from({ length: state.planted }, (_, index) => index)
+      .find((index) => !state.harvestedThisRound.includes(index));
+    if (typeof nextMelonIndex === "number") {
+      return { element: plantSlots[nextMelonIndex].melon, dx: 0, dy: -34 };
+    }
+    return { element: bucketBtn, dx: 0, dy: -34 };
   }
 
   function getMelonSize() {
@@ -1793,7 +1898,6 @@
 
   function updateScene() {
     scoreEl.textContent = String(state.score);
-    needEl.textContent = getNeedText();
 
     seedButtons.forEach((seed, index) => {
       seed.classList.toggle("used", state.usedSeeds.includes(index));
@@ -1823,6 +1927,13 @@
       slot.melon.classList.toggle("show", visible);
       slot.melon.classList.toggle("picked", state.harvestedThisRound.includes(index));
     });
+
+    if (celebrationEl.classList.contains("show")) {
+      funArrowEl.classList.remove("show");
+    } else {
+      const arrowTarget = getNextArrowTarget();
+      pointArrowAt(arrowTarget.element, arrowTarget.dx, arrowTarget.dy);
+    }
   }
 
   function renderBucket() {
@@ -1875,7 +1986,7 @@
     element.animate(
       [
         { transform: "translate(0, 0) scale(1)" },
-        { transform: `translate(${dx}px, ${dy}px) scale(1.1)` },
+        { transform: `translate(${dx}px, ${dy}px) scale(1.05)` },
         { transform: "translate(0, 0) scale(1)" }
       ],
       { duration: 700, easing: "ease-in-out" }
@@ -1883,6 +1994,7 @@
   }
 
   function triggerToolAction(kind) {
+    ensureAudioUnlocked();
     if (kind === "cloud") {
       playSound("cloud");
       animateCharacter(cloudBtn, "party");
@@ -1969,6 +2081,7 @@
 
   function startDrag(event, type, index, sourceEl, emoji) {
     cleanupDrag();
+    ensureAudioUnlocked();
     playSound(type === "seed" ? "seed" : "melon");
     state.pointerId = event.pointerId;
     state.dragging = { type, index, sourceEl };
@@ -2175,6 +2288,7 @@
     if (!state.helperReady) {
       return;
     }
+    ensureAudioUnlocked();
     state.helperReady = false;
     helperBtn.classList.remove("show");
     animateCharacter(helperBtn, "show");
@@ -2187,6 +2301,7 @@
   });
 
   bucketBtn.addEventListener("click", () => {
+    ensureAudioUnlocked();
     playSound("bucket");
     animateCharacter(bucketBtn, "party");
     if (state.harvestedThisRound.length === 0) {
