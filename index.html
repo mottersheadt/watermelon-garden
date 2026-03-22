@@ -2182,6 +2182,17 @@
       }
       startDrag(event, "seed", index, seed, "🌱");
     });
+    seed.addEventListener("pointermove", (event) => {
+      if (state.pointerId === event.pointerId) {
+        moveGhost(event);
+      }
+    });
+    seed.addEventListener("pointerup", (event) => {
+      if (state.pointerId === event.pointerId) {
+        endDrag(event);
+      }
+    });
+    seed.addEventListener("pointercancel", cleanupDrag);
   });
 
   melonButtons.forEach((melon, index) => {
@@ -2193,6 +2204,17 @@
       }
       startDrag(event, "melon", index, melon, "🍉");
     });
+    melon.addEventListener("pointermove", (event) => {
+      if (state.pointerId === event.pointerId) {
+        moveGhost(event);
+      }
+    });
+    melon.addEventListener("pointerup", (event) => {
+      if (state.pointerId === event.pointerId) {
+        endDrag(event);
+      }
+    });
+    melon.addEventListener("pointercancel", cleanupDrag);
   });
 
   window.addEventListener("pointermove", (event) => {
