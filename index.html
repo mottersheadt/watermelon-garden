@@ -748,8 +748,8 @@
     position: absolute;
     left: 20px;
     bottom: 24px;
-    width: 186px;
-    padding: 12px;
+    width: 224px;
+    padding: 14px;
     border-radius: 22px;
     background: rgba(255, 248, 232, 0.92);
     box-shadow: 0 12px 24px var(--shadow);
@@ -766,13 +766,14 @@
   .seed-list {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 12px;
   }
 
   .seed {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
+    min-width: 56px;
     border-radius: 999px;
     background: linear-gradient(180deg, #5b3818, #2d1808);
     box-shadow: inset 0 5px 0 rgba(255,255,255,0.12), 0 6px 10px rgba(0,0,0,0.12);
@@ -1533,6 +1534,7 @@
   const messageEl = document.getElementById("message");
   const sceneEl = document.getElementById("scene");
   const patchZoneEl = document.getElementById("patchZone");
+  const seedBankEl = document.querySelector(".seed-bank");
   const bucketBtn = document.getElementById("bucketBtn");
   const cloudBtn = document.getElementById("cloudBtn");
   const sunBtn = document.getElementById("sunBtn");
@@ -2023,6 +2025,25 @@
       event.clientY <= rect.bottom;
   }
 
+  function findNearestAvailableSeedButton(event) {
+    let bestSeed = null;
+    let bestDistance = Number.POSITIVE_INFINITY;
+    seedButtons.forEach((seed, index) => {
+      if (state.usedSeeds.includes(index)) {
+        return;
+      }
+      const rect = seed.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const distance = Math.hypot(event.clientX - centerX, event.clientY - centerY);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestSeed = { seed, index };
+      }
+    });
+    return bestDistance <= 56 ? bestSeed : null;
+  }
+
   function animateToolToCenter(element) {
     const sceneRect = sceneEl.getBoundingClientRect();
     const rect = element.getBoundingClientRect();
@@ -2242,6 +2263,17 @@
       }
     });
     seed.addEventListener("pointercancel", cleanupDrag);
+  });
+
+  seedBankEl.addEventListener("pointerdown", (event) => {
+    if (event.target.closest(".seed")) {
+      return;
+    }
+    const nearest = findNearestAvailableSeedButton(event);
+    if (!nearest) {
+      return;
+    }
+    startDrag(event, "seed", nearest.index, nearest.seed, "🌱");
   });
 
   melonButtons.forEach((melon, index) => {
