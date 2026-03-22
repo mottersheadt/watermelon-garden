@@ -1342,7 +1342,8 @@
     dragging: null,
     ghost: null,
     pointerId: null,
-    audioContext: null
+    audioContext: null,
+    audioReady: false
   };
 
   const scoreEl = document.getElementById("score");
@@ -1427,9 +1428,35 @@
     return state.audioContext;
   }
 
+  function primeAudio() {
+    const ctx = getAudioContext();
+    if (!ctx || state.audioReady) {
+      return;
+    }
+
+    const unlock = () => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      gain.gain.setValueAtTime(0.00001, ctx.currentTime);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.01);
+      state.audioReady = true;
+    };
+
+    if (ctx.state === "suspended") {
+      ctx.resume().then(unlock).catch(() => {});
+    } else {
+      unlock();
+    }
+  }
+
   function playSound(type, customTones) {
     const ctx = getAudioContext();
-    if (!ctx) {
+    if (!ctx || !state.audioReady) {
       return;
     }
 
@@ -1463,6 +1490,11 @@
       osc.stop(now + index * 0.05 + 0.24);
     });
   }
+
+  const audioUnlockEvents = ["pointerdown", "touchstart", "click"];
+  audioUnlockEvents.forEach((eventName) => {
+    document.addEventListener(eventName, primeAudio, { passive: true });
+  });
 
   function setMessage(text) {
     messageEl.textContent = text;
