@@ -33,6 +33,7 @@
     overflow: hidden;
     touch-action: manipulation;
     -webkit-touch-callout: none;
+    overscroll-behavior: none;
   }
 
   body {
@@ -1374,6 +1375,9 @@
   @media (max-width: 640px) {
     .game {
       padding: 8px;
+      padding-left: calc(env(safe-area-inset-left) + 8px);
+      padding-right: calc(env(safe-area-inset-right) + 8px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
     }
 
     .scene {
@@ -1431,7 +1435,7 @@
     .bucket {
       left: 50%;
       right: auto;
-      bottom: 18px;
+      bottom: calc(env(safe-area-inset-bottom) + 74px);
       width: min(90vw, 300px);
       transform: translateX(-50%);
     }
@@ -1445,8 +1449,8 @@
     }
 
     .seed-bank {
-      left: 10px;
-      bottom: 146px;
+      left: calc(env(safe-area-inset-left) + 18px);
+      bottom: calc(env(safe-area-inset-bottom) + 208px);
       width: 150px;
       padding: 10px;
       transform: none;
@@ -1517,13 +1521,13 @@
     }
 
     .bucket {
-      bottom: 14px;
+      bottom: calc(env(safe-area-inset-bottom) + 68px);
       width: min(92vw, 292px);
     }
 
     .seed-bank {
-      left: 8px;
-      bottom: 132px;
+      left: calc(env(safe-area-inset-left) + 14px);
+      bottom: calc(env(safe-area-inset-bottom) + 192px);
       width: 136px;
       padding: 8px;
     }
