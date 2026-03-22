@@ -1381,55 +1381,62 @@
     }
 
     .scene {
-      min-height: 980px;
+      min-height: 920px;
     }
 
     .sun {
-      top: 18px;
-      right: 16px;
-      transform: scale(0.88);
+      top: 12px;
+      right: 12px;
+      transform: scale(0.78);
       transform-origin: right top;
     }
 
     .cloud {
-      left: 12px;
-      top: 92px;
-      transform: scale(0.88);
+      left: 8px;
+      top: 74px;
+      transform: scale(0.78);
       transform-origin: left top;
     }
 
     .bird {
-      top: 166px;
-      right: 18px;
-      transform: scale(0.88);
+      top: 132px;
+      right: 6px;
+      transform: scale(0.78);
       transform-origin: right top;
     }
 
     .patch-zone {
-      bottom: 320px;
-      width: min(92vw, 380px);
+      bottom: 292px;
+      width: min(94vw, 360px);
+      height: 240px;
     }
 
     .patch {
-      bottom: 272px;
-      width: min(90vw, 350px);
+      bottom: 248px;
+      width: min(92vw, 332px);
+      height: 124px;
     }
 
     .planted-seeds {
-      bottom: 350px;
-      width: 230px;
+      bottom: 324px;
+      width: 340px;
+      transform: translateX(-50%) scale(0.78);
+      transform-origin: center bottom;
     }
 
     .plant-area {
-      bottom: 388px;
-      width: min(92vw, 360px);
+      bottom: 338px;
+      width: 650px;
+      height: 280px;
+      transform: translateX(-50%) scale(0.56);
+      transform-origin: center bottom;
     }
 
     .bucket {
       left: 50%;
       right: auto;
-      bottom: 154px;
-      width: min(86vw, 280px);
+      bottom: 132px;
+      width: min(90vw, 300px);
       transform: translateX(-50%);
     }
 
@@ -1443,18 +1450,76 @@
 
     .seed-bank {
       left: 50%;
-      bottom: 20px;
-      width: min(92vw, 340px);
+      bottom: 18px;
+      width: min(94vw, 360px);
       transform: translateX(-50%);
     }
 
     .burst {
-      bottom: 620px;
+      bottom: 560px;
     }
 
     .song-notes {
-      right: 26px;
-      top: 138px;
+      right: 18px;
+      top: 108px;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .title-card {
+      padding: 10px 12px;
+    }
+
+    .subtitle {
+      font-size: 0.94rem;
+    }
+
+    .scene {
+      min-height: 880px;
+    }
+
+    .sun {
+      transform: scale(0.72);
+    }
+
+    .cloud {
+      top: 68px;
+      transform: scale(0.72);
+    }
+
+    .bird {
+      top: 124px;
+      transform: scale(0.72);
+    }
+
+    .patch-zone {
+      bottom: 286px;
+      width: min(95vw, 344px);
+      height: 226px;
+    }
+
+    .patch {
+      bottom: 244px;
+      width: min(92vw, 320px);
+    }
+
+    .planted-seeds {
+      bottom: 318px;
+      transform: translateX(-50%) scale(0.72);
+    }
+
+    .plant-area {
+      bottom: 332px;
+      transform: translateX(-50%) scale(0.5);
+    }
+
+    .bucket {
+      bottom: 128px;
+      width: min(92vw, 292px);
+    }
+
+    .seed-bank {
+      width: min(95vw, 344px);
     }
   }
 </style>
