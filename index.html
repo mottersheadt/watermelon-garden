@@ -2115,6 +2115,7 @@
     state.toolDrag = null;
     state.ghost = null;
     state.pointerId = null;
+    updateScene();
   }
 
   function startDrag(event, type, index, sourceEl, emoji) {
@@ -2138,6 +2139,7 @@
     } else {
       bucketBtn.classList.add("active");
     }
+    updateScene();
   }
 
   function finishSeedDrop(seedIndex) {
