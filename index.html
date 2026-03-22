@@ -909,6 +909,62 @@
     transform: translateX(-50%);
   }
 
+  .tea-cup,
+  .tea-pot {
+    position: absolute;
+    background: rgba(255, 248, 232, 0.96);
+    border: 4px solid #b45366;
+    box-shadow: 0 8px 14px rgba(0,0,0,0.1);
+  }
+
+  .tea-cup {
+    width: 28px;
+    height: 22px;
+    border-radius: 0 0 14px 14px;
+  }
+
+  .tea-cup::after {
+    content: "";
+    position: absolute;
+    right: -10px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border: 3px solid #b45366;
+    border-left: 0;
+    border-radius: 0 10px 10px 0;
+  }
+
+  .tea-pot {
+    width: 44px;
+    height: 34px;
+    border-radius: 16px 16px 18px 18px;
+  }
+
+  .tea-pot::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -10px;
+    width: 12px;
+    height: 10px;
+    border-radius: 8px 8px 0 0;
+    background: #b45366;
+    transform: translateX(-50%);
+  }
+
+  .tea-pot::after {
+    content: "";
+    position: absolute;
+    right: -12px;
+    top: 10px;
+    width: 16px;
+    height: 8px;
+    border-top: 4px solid #b45366;
+    border-right: 4px solid #b45366;
+    border-radius: 0 16px 0 0;
+  }
+
   .helper {
     position: absolute;
     left: 26px;
@@ -1396,12 +1452,15 @@
     planted: 0,
     watered: false,
     sunned: false,
+    waterCount: 0,
+    sunCount: 0,
     sung: 0,
     score: 0,
     personalities: [],
     helperReady: false,
     harvestedThisRound: [],
     usedSeeds: [],
+    toolDrag: null,
     dragging: null,
     ghost: null,
     pointerId: null,
@@ -1579,6 +1638,21 @@
       fruit.style.top = `${positions[index].top}px`;
       picnicBlanketEl.appendChild(fruit);
     });
+    const pot = document.createElement("div");
+    pot.className = "tea-pot";
+    pot.style.left = "126px";
+    pot.style.top = "48px";
+    picnicBlanketEl.appendChild(pot);
+    const cupA = document.createElement("div");
+    cupA.className = "tea-cup";
+    cupA.style.left = "78px";
+    cupA.style.top = "102px";
+    picnicBlanketEl.appendChild(cupA);
+    const cupB = document.createElement("div");
+    cupB.className = "tea-cup";
+    cupB.style.left = "188px";
+    cupB.style.top = "100px";
+    picnicBlanketEl.appendChild(cupB);
   }
 
   function playSound(type, customTones) {
@@ -1665,8 +1739,8 @@
   }
 
   function showCelebration() {
-    celebrationTitleEl.textContent = "Picnic Time!";
-    celebrationTextEl.textContent = `You picked ${state.planted} funny watermelon${state.planted === 1 ? "" : "s"}!`;
+    celebrationTitleEl.textContent = "Tea Party Time!";
+    celebrationTextEl.textContent = `${state.planted} watermelon friend${state.planted === 1 ? "" : "s"} made it to tea time!`;
     renderPicnic();
     celebrationEl.classList.add("show");
     createConfetti();
@@ -1714,7 +1788,7 @@
     if (state.sung === 0) {
       return 58;
     }
-    return Math.min(190, 72 + state.sung * 16);
+    return Math.min(220, 72 + state.sung * 16 + Math.max(0, state.waterCount - 1) * 4 + Math.max(0, state.sunCount - 1) * 5);
   }
 
   function updateScene() {
@@ -1734,9 +1808,11 @@
       const pos = SLOT_POSITIONS[index];
       slot.el.style.left = `${pos.left}px`;
       slot.el.style.top = `${pos.top}px`;
-      slot.vine.style.height = state.watered && index < state.planted ? `${64 + index * 5}px` : "0";
+      slot.vine.style.height = state.watered && index < state.planted ? `${64 + index * 5 + Math.max(0, state.waterCount - 1) * 8}px` : "0";
       slot.leafLeft.style.opacity = state.sunned && index < state.planted ? "1" : "0";
       slot.leafRight.style.opacity = state.sunned && index < state.planted ? "1" : "0";
+      slot.leafLeft.style.transform = `rotate(-18deg) scale(${state.sunned ? 1 + Math.max(0, state.sunCount - 1) * 0.08 : 1})`;
+      slot.leafRight.style.transform = `scaleX(-1) rotate(-18deg) scale(${state.sunned ? 1 + Math.max(0, state.sunCount - 1) * 0.08 : 1})`;
       slot.melon.style.width = `${melonSize + (index % 3) * 4}px`;
       slot.melon.style.height = `${melonSize + (index % 2) * 6}px`;
       slot.melon.style.bottom = `${28 + (index % 2) * 6}px`;
@@ -1770,6 +1846,8 @@
     state.planted = 0;
     state.watered = false;
     state.sunned = false;
+    state.waterCount = 0;
+    state.sunCount = 0;
     state.sung = 0;
     refreshMelonPersonalities();
     state.helperReady = false;
@@ -1787,6 +1865,75 @@
       event.clientX <= rect.right &&
       event.clientY >= rect.top &&
       event.clientY <= rect.bottom;
+  }
+
+  function animateToolToCenter(element) {
+    const sceneRect = sceneEl.getBoundingClientRect();
+    const rect = element.getBoundingClientRect();
+    const dx = sceneRect.left + sceneRect.width / 2 - (rect.left + rect.width / 2);
+    const dy = sceneRect.top + sceneRect.height / 2 - (rect.top + rect.height / 2) - 80;
+    element.animate(
+      [
+        { transform: "translate(0, 0) scale(1)" },
+        { transform: `translate(${dx}px, ${dy}px) scale(1.1)` },
+        { transform: "translate(0, 0) scale(1)" }
+      ],
+      { duration: 700, easing: "ease-in-out" }
+    );
+  }
+
+  function triggerToolAction(kind) {
+    if (kind === "cloud") {
+      playSound("cloud");
+      animateCharacter(cloudBtn, "party");
+      animateToolToCenter(cloudBtn);
+      if (state.planted === 0) {
+        setMessage("Plant at least one seed first.");
+        burst("WAIT!");
+        return;
+      }
+      state.watered = true;
+      state.waterCount += 1;
+      rainBurst();
+      updateScene();
+      burst(state.waterCount === 1 ? "SPLASH!" : "MORE!");
+      setMessage(state.waterCount === 1 ? "Splash splash. The vine popped up. Now click the sun." : "More water. The plants look extra happy and juicy.");
+      return;
+    }
+
+    if (kind === "sun") {
+      playSound("sun");
+      animateCharacter(sunBtn, "party");
+      animateToolToCenter(sunBtn);
+      if (!state.watered) {
+        setMessage("The cloud goes first.");
+        burst("WAIT!");
+        return;
+      }
+      state.sunned = true;
+      state.sunCount += 1;
+      updateScene();
+      maybeShowHelper();
+      burst(state.sunCount === 1 ? "SHINE!" : "GLOW!");
+      setMessage(state.sunCount === 1 ? "Warm sunshine. The leaves came out. Now click the bird." : "More sunshine. The leaves stretched bigger.");
+      return;
+    }
+
+    if (kind === "bird") {
+      playSound("bird");
+      animateCharacter(birdBtn, "party");
+      animateToolToCenter(birdBtn);
+      if (!state.sunned) {
+        setMessage("The sun should shine before the bird sings.");
+        burst("WAIT!");
+        return;
+      }
+      state.sung += 1;
+      singNotes();
+      updateScene();
+      burst(state.sung === 1 ? "GROW!" : "BIGGER!");
+      setMessage(state.sung === 1 ? `${state.planted} silly melons grew. Drag each one into the basket.` : "The watermelons got bigger. Drag them out or keep singing.");
+    }
   }
 
   function moveGhost(event) {
@@ -1809,7 +1956,13 @@
     if (state.ghost) {
       state.ghost.remove();
     }
+    if (state.toolDrag?.element) {
+      if (state.toolDrag.pointerId !== null && state.toolDrag.element.hasPointerCapture?.(state.toolDrag.pointerId)) {
+        state.toolDrag.element.releasePointerCapture(state.toolDrag.pointerId);
+      }
+    }
     state.dragging = null;
+    state.toolDrag = null;
     state.ghost = null;
     state.pointerId = null;
   }
@@ -1952,73 +2105,71 @@
     }
   });
 
-  cloudBtn.addEventListener("click", () => {
-    playSound("cloud");
-    animateCharacter(cloudBtn, "party");
-    if (state.planted === 0) {
-      setMessage("Plant at least one seed first.");
-      burst("WAIT!");
-      return;
-    }
-    if (state.watered) {
-      setMessage("The patch is already watered. Click the sun next.");
-      burst("SPLASH!");
-      return;
-    }
-    state.watered = true;
-    rainBurst();
-    updateScene();
-    burst("SPLASH!");
-    setMessage("Splash splash. The vine popped up. Now click the sun.");
-  });
+  function bindToolDrag(element, kind, emoji) {
+    let startX = 0;
+    let startY = 0;
+    let dragged = false;
 
-  sunBtn.addEventListener("click", () => {
-    playSound("sun");
-    animateCharacter(sunBtn, "party");
-    if (!state.watered) {
-      setMessage("The cloud goes first.");
-      burst("WAIT!");
-      return;
-    }
-    if (state.sunned) {
-      setMessage("The patch is already sunny. Click the bird.");
-      burst("SHINE!");
-      return;
-    }
-    state.sunned = true;
-    sunBtn.animate(
-      [
-        { transform: "scale(1)" },
-        { transform: "scale(1.15)" },
-        { transform: "scale(1)" }
-      ],
-      { duration: 420, easing: "ease-out" }
-    );
-    updateScene();
-    maybeShowHelper();
-    burst("SHINE!");
-    setMessage("Warm sunshine. The leaves came out. Now click the bird.");
-  });
+    element.addEventListener("pointerdown", (event) => {
+      cleanupDrag();
+      startX = event.clientX;
+      startY = event.clientY;
+      dragged = false;
+      state.toolDrag = { kind, pointerId: event.pointerId, element };
+      const ghost = document.createElement("div");
+      ghost.className = "drag-ghost";
+      ghost.textContent = emoji;
+      ghost.style.opacity = "0";
+      document.body.appendChild(ghost);
+      state.ghost = ghost;
+      moveGhost(event);
+      element.setPointerCapture(event.pointerId);
+    });
 
-  birdBtn.addEventListener("click", () => {
-    playSound("bird");
-    animateCharacter(birdBtn, "party");
-    if (!state.sunned) {
-      setMessage("The sun should shine before the bird sings.");
-      burst("WAIT!");
-      return;
-    }
-    state.sung += 1;
-    singNotes();
-    updateScene();
-    if (state.sung === 1) {
-      burst("GROW!");
-      setMessage(`${state.planted} silly melons popped up. Drag each one into the bucket.`);
-    } else {
-      burst("BIGGER!");
-      setMessage("The watermelons got bigger. Drag them out or keep singing.");
-    }
-  });
+    element.addEventListener("pointermove", (event) => {
+      if (!state.toolDrag || state.toolDrag.pointerId !== event.pointerId) {
+        return;
+      }
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+        dragged = true;
+        if (state.ghost) {
+          state.ghost.style.opacity = "1";
+        }
+        moveGhost(event);
+      }
+    });
+
+    element.addEventListener("pointerup", (event) => {
+      if (!state.toolDrag || state.toolDrag.pointerId !== event.pointerId) {
+        return;
+      }
+      if (state.ghost) {
+        state.ghost.remove();
+      }
+      state.ghost = null;
+      state.toolDrag = null;
+      triggerToolAction(kind);
+      if (element.hasPointerCapture?.(event.pointerId)) {
+        element.releasePointerCapture(event.pointerId);
+      }
+    });
+
+    element.addEventListener("pointercancel", () => {
+      cleanupDrag();
+    });
+
+    element.addEventListener("click", (event) => {
+      if (dragged) {
+        event.preventDefault();
+      }
+    });
+  }
+
+  bindToolDrag(cloudBtn, "cloud", "☁️");
+  bindToolDrag(sunBtn, "sun", "☀️");
+  bindToolDrag(birdBtn, "bird", "🐦");
 
   helperBtn.addEventListener("click", () => {
     if (!state.helperReady) {
