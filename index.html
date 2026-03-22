@@ -1433,19 +1433,28 @@
     }
 
     .bucket {
-      left: 50%;
-      right: auto;
-      bottom: calc(env(safe-area-inset-bottom) + 74px);
-      width: min(90vw, 300px);
-      transform: translateX(-50%);
+      left: auto;
+      right: calc(env(safe-area-inset-right) + 18px);
+      bottom: calc(env(safe-area-inset-bottom) + 208px);
+      width: 150px;
+      min-height: 150px;
+      padding: 10px;
+      transform: none;
+      opacity: 0;
+      pointer-events: none;
     }
 
     .bucket.active {
-      transform: translateX(-50%) scale(1.03);
+      transform: scale(1.03);
     }
 
     .bucket-grid {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .bucket.phone-show {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .seed-bank {
@@ -1455,6 +1464,11 @@
       padding: 10px;
       transform: none;
       z-index: 19;
+    }
+
+    .seed-bank.phone-hide {
+      opacity: 0;
+      pointer-events: none;
     }
 
     .seed-title {
@@ -1521,8 +1535,11 @@
     }
 
     .bucket {
-      bottom: calc(env(safe-area-inset-bottom) + 68px);
-      width: min(92vw, 292px);
+      right: calc(env(safe-area-inset-right) + 14px);
+      bottom: calc(env(safe-area-inset-bottom) + 192px);
+      width: 136px;
+      min-height: 136px;
+      padding: 8px;
     }
 
     .seed-bank {
@@ -2071,9 +2088,21 @@
   function pointArrowAt(element, dx = 0, dy = -42, icon = "👇") {
     const sceneRect = sceneEl.getBoundingClientRect();
     const rect = element.getBoundingClientRect();
+    const isPhone = window.innerWidth <= 640;
+    let finalDx = dx;
+    let finalDy = dy;
+    if (isPhone) {
+      if (element.closest?.(".seed-bank")) {
+        finalDx += 10;
+        finalDy += 6;
+      } else if (element === bucketBtn || element.closest?.(".bucket")) {
+        finalDx -= 8;
+        finalDy += 8;
+      }
+    }
     funArrowEl.textContent = icon;
-    funArrowEl.style.left = `${rect.left - sceneRect.left + rect.width / 2 + dx}px`;
-    funArrowEl.style.top = `${rect.top - sceneRect.top + rect.height / 2 + dy}px`;
+    funArrowEl.style.left = `${rect.left - sceneRect.left + rect.width / 2 + finalDx}px`;
+    funArrowEl.style.top = `${rect.top - sceneRect.top + rect.height / 2 + finalDy}px`;
     funArrowEl.classList.add("show");
   }
 
@@ -2124,6 +2153,10 @@
   }
 
   function updateScene() {
+    const plantingDone = state.usedSeeds.length >= MAX_SEEDS;
+    seedBankEl.classList.toggle("phone-hide", plantingDone);
+    bucketBtn.classList.toggle("phone-show", plantingDone);
+
     seedButtons.forEach((seed, index) => {
       seed.classList.toggle("used", state.usedSeeds.includes(index));
     });
