@@ -370,7 +370,7 @@
     position: absolute;
     left: 50%;
     bottom: 218px;
-    width: min(84vw, 420px);
+    width: min(90vw, 540px);
     height: 280px;
     transform: translateX(-50%);
     border-radius: 40px;
@@ -388,7 +388,7 @@
     position: absolute;
     left: 50%;
     bottom: 180px;
-    width: min(82vw, 370px);
+    width: min(88vw, 490px);
     height: 150px;
     transform: translateX(-50%);
     border-radius: 50%;
@@ -400,7 +400,7 @@
     position: absolute;
     left: 50%;
     bottom: 258px;
-    width: 260px;
+    width: 340px;
     height: 90px;
     transform: translateX(-50%);
   }
@@ -424,14 +424,14 @@
     position: absolute;
     left: 50%;
     bottom: 292px;
-    width: min(80vw, 390px);
+    width: min(88vw, 520px);
     height: 280px;
     transform: translateX(-50%);
   }
 
   .plant-slot {
     position: absolute;
-    width: 92px;
+    width: 104px;
     height: 200px;
     transform: translateX(-50%);
   }
@@ -1495,13 +1495,14 @@
 
 <script>
   const MAX_SEEDS = 6;
+  const FULLY_GROWN_SONGS = 4;
   const SLOT_POSITIONS = [
-    { left: 72, top: 126 },
-    { left: 196, top: 126 },
-    { left: 320, top: 126 },
-    { left: 72, top: 40 },
-    { left: 196, top: 34 },
-    { left: 320, top: 40 }
+    { left: 68, top: 126 },
+    { left: 260, top: 126 },
+    { left: 452, top: 126 },
+    { left: 68, top: 36 },
+    { left: 260, top: 28 },
+    { left: 452, top: 36 }
   ];
 
   const state = {
@@ -1899,7 +1900,7 @@
   }
 
   function melonsReadyToPick() {
-    return state.sung >= 2;
+    return state.sung >= FULLY_GROWN_SONGS;
   }
 
   function getNextArrowTarget() {
@@ -2088,7 +2089,12 @@
       singNotes();
       updateScene();
       burst(state.sung === 1 ? "GROW!" : "BIGGER!");
-      setMessage(state.sung === 1 ? "The watermelons are growing. Sing one more time to make them ready to pick." : "The watermelons are fully grown. Drag each one into the basket.");
+      if (melonsReadyToPick()) {
+        setMessage("The watermelons are fully grown. Drag each one into the basket.");
+      } else {
+        const songsLeft = FULLY_GROWN_SONGS - state.sung;
+        setMessage(`The watermelons are still growing. Sing ${songsLeft} more time${songsLeft === 1 ? "" : "s"} to make them ready.`);
+      }
     }
   }
 
