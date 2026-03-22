@@ -606,7 +606,17 @@
       repeating-linear-gradient(90deg, #5bc561 0 8px, #267b37 8px 12px, #9af09b 12px 16px);
   }
 
+  .picnic-fruit.style-2 {
+    background:
+      repeating-linear-gradient(90deg, #5bc561 0 8px, #267b37 8px 12px, #9af09b 12px 16px);
+  }
+
   .melon.style-3 {
+    background:
+      repeating-linear-gradient(90deg, #48ae57 0 6px, #1d7432 6px 11px, #7adf82 11px 18px);
+  }
+
+  .picnic-fruit.style-3 {
     background:
       repeating-linear-gradient(90deg, #48ae57 0 6px, #1d7432 6px 11px, #7adf82 11px 18px);
   }
@@ -616,7 +626,16 @@
       repeating-linear-gradient(90deg, #60bf64 0 12px, #237937 12px 16px, #93ea93 16px 20px);
   }
 
+  .picnic-fruit.style-4 {
+    background:
+      repeating-linear-gradient(90deg, #60bf64 0 12px, #237937 12px 16px, #93ea93 16px 20px);
+  }
+
   .melon.shape-tall {
+    border-radius: 44% 56% 50% 50%;
+  }
+
+  .picnic-fruit.shape-tall {
     border-radius: 44% 56% 50% 50%;
   }
 
@@ -624,7 +643,15 @@
     border-radius: 52% 48% 46% 46%;
   }
 
+  .picnic-fruit.shape-flat {
+    border-radius: 52% 48% 46% 46%;
+  }
+
   .melon.shape-lumpy {
+    border-radius: 43% 57% 46% 54%;
+  }
+
+  .picnic-fruit.shape-lumpy {
     border-radius: 43% 57% 46% 54%;
   }
 
@@ -845,6 +872,41 @@
     margin-top: 6px;
     font-size: 1.05rem;
     font-weight: 800;
+  }
+
+  .picnic-blanket {
+    position: relative;
+    margin: 12px auto 0;
+    width: min(84vw, 300px);
+    height: 150px;
+    border-radius: 28px;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,0.22) 0 10%, transparent 10% 20%, rgba(255,255,255,0.22) 20% 30%, transparent 30% 40%, rgba(255,255,255,0.22) 40% 50%, transparent 50% 60%, rgba(255,255,255,0.22) 60% 70%, transparent 70% 80%, rgba(255,255,255,0.22) 80% 90%, transparent 90% 100%),
+      linear-gradient(180deg, rgba(255,255,255,0.2) 0 10%, transparent 10% 20%, rgba(255,255,255,0.2) 20% 30%, transparent 30% 40%, rgba(255,255,255,0.2) 40% 50%, transparent 50% 60%, rgba(255,255,255,0.2) 60% 70%, transparent 70% 80%, rgba(255,255,255,0.2) 80% 90%, transparent 90% 100%),
+      linear-gradient(180deg, #ff8db4, #ff5d8e);
+    box-shadow: inset 0 10px 0 rgba(255,255,255,0.16);
+  }
+
+  .picnic-fruit {
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    border-radius: 46% 54% 48% 52%;
+    background:
+      repeating-linear-gradient(90deg, #47b256 0 10px, #1c7432 10px 15px, #87e28a 15px 20px);
+    box-shadow: inset 0 8px 0 rgba(255,255,255,0.18), 0 10px 16px rgba(23,49,37,0.16);
+  }
+
+  .picnic-fruit::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    width: 12px;
+    height: 16px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #3ea24d, #206c33);
+    transform: translateX(-50%);
   }
 
   .helper {
@@ -1189,6 +1251,7 @@
     }
   }
 </style>
+<script src="https://unpkg.com/tone"></script>
 </head>
 <body>
   <main class="game">
@@ -1277,8 +1340,8 @@
         </div>
       </div>
 
-      <button class="bucket" id="bucketBtn" type="button" aria-label="Bucket of picked watermelons">
-        <span class="bucket-title">Picked So Far</span>
+      <button class="bucket" id="bucketBtn" type="button" aria-label="Picnic basket">
+        <span class="bucket-title">Picnic Basket</span>
         <span class="bucket-grid" id="bucketGrid"></span>
       </button>
 
@@ -1296,6 +1359,7 @@
         <div class="celebration-card">
           <strong id="celebrationTitle">Yay!</strong>
           <span id="celebrationText">You picked some melons.</span>
+          <div class="picnic-blanket" id="picnicBlanket"></div>
         </div>
       </div>
 
@@ -1334,7 +1398,6 @@
     sunned: false,
     sung: 0,
     score: 0,
-    bucket: [],
     personalities: [],
     helperReady: false,
     harvestedThisRound: [],
@@ -1343,7 +1406,10 @@
     ghost: null,
     pointerId: null,
     audioContext: null,
-    audioReady: false
+    audioReady: false,
+    toneReady: false,
+    picnicSynth: null,
+    picnicDrum: null
   };
 
   const scoreEl = document.getElementById("score");
@@ -1360,6 +1426,7 @@
   const celebrationEl = document.getElementById("celebration");
   const celebrationTitleEl = document.getElementById("celebrationTitle");
   const celebrationTextEl = document.getElementById("celebrationText");
+  const picnicBlanketEl = document.getElementById("picnicBlanket");
   const plantedSeedEls = [...document.querySelectorAll(".planted-seed")];
   const burstEl = document.getElementById("burst");
   const songNotesEl = document.getElementById("songNotes");
@@ -1430,11 +1497,10 @@
 
   function primeAudio() {
     const ctx = getAudioContext();
-    if (!ctx || state.audioReady) {
-      return;
-    }
-
-    const unlock = () => {
+    const unlockWebAudio = () => {
+      if (!ctx || state.audioReady) {
+        return;
+      }
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
@@ -1447,11 +1513,72 @@
       state.audioReady = true;
     };
 
-    if (ctx.state === "suspended") {
-      ctx.resume().then(unlock).catch(() => {});
+    if (ctx && ctx.state === "suspended") {
+      ctx.resume().then(unlockWebAudio).catch(() => {});
     } else {
-      unlock();
+      unlockWebAudio();
     }
+
+    if (window.Tone && !state.toneReady) {
+      window.Tone.start().then(() => {
+        state.toneReady = true;
+      }).catch(() => {});
+    }
+  }
+
+  function ensurePicnicInstruments() {
+    if (!window.Tone || !state.toneReady) {
+      return false;
+    }
+    if (!state.picnicSynth) {
+      state.picnicSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: "triangle" },
+        envelope: { attack: 0.02, decay: 0.08, sustain: 0.2, release: 0.3 }
+      }).toDestination();
+      state.picnicDrum = new Tone.MembraneSynth({
+        pitchDecay: 0.03,
+        octaves: 2.5,
+        envelope: { attack: 0.001, decay: 0.18, sustain: 0.01, release: 0.18 }
+      }).toDestination();
+    }
+    return true;
+  }
+
+  function playPicnicMusic() {
+    if (!ensurePicnicInstruments()) {
+      return;
+    }
+
+    const now = Tone.now() + 0.08;
+    const melody = [
+      ["C5", 0], ["E5", 0.22], ["G5", 0.44], ["A5", 0.66],
+      ["G5", 0.88], ["E5", 1.1], ["D5", 1.32], ["C5", 1.54]
+    ];
+    melody.forEach(([note, offset]) => {
+      state.picnicSynth.triggerAttackRelease(note, "8n", now + offset);
+    });
+    [0, 0.44, 0.88, 1.32].forEach((offset) => {
+      state.picnicDrum.triggerAttackRelease("C2", "8n", now + offset);
+    });
+  }
+
+  function renderPicnic() {
+    picnicBlanketEl.innerHTML = "";
+    const positions = [
+      { left: 18, top: 24 },
+      { left: 98, top: 18 },
+      { left: 178, top: 24 },
+      { left: 52, top: 78 },
+      { left: 132, top: 72 },
+      { left: 212, top: 80 }
+    ];
+    state.personalities.slice(0, state.planted).forEach((personality, index) => {
+      const fruit = document.createElement("div");
+      fruit.className = `picnic-fruit ${personality.style} ${personality.shape}`;
+      fruit.style.left = `${positions[index].left}px`;
+      fruit.style.top = `${positions[index].top}px`;
+      picnicBlanketEl.appendChild(fruit);
+    });
   }
 
   function playSound(type, customTones) {
@@ -1540,10 +1667,11 @@
   function showCelebration() {
     celebrationTitleEl.textContent = "Picnic Time!";
     celebrationTextEl.textContent = `You picked ${state.planted} funny watermelon${state.planted === 1 ? "" : "s"}!`;
+    renderPicnic();
     celebrationEl.classList.add("show");
     createConfetti();
-    playSound("bucket", [520, 660, 784, 880]);
-    setTimeout(() => celebrationEl.classList.remove("show"), 1400);
+    playPicnicMusic();
+    setTimeout(() => celebrationEl.classList.remove("show"), 2400);
   }
 
   function maybeShowHelper() {
@@ -1623,15 +1751,14 @@
 
   function renderBucket() {
     bucketGridEl.innerHTML = "";
-    const shown = state.bucket.slice(-12);
-    shown.forEach((size) => {
+    const collected = state.harvestedThisRound.length;
+    for (let i = 0; i < collected; i += 1) {
       const fruit = document.createElement("span");
       fruit.className = "bucket-fruit";
-      fruit.textContent = size >= 120 ? "🍉" : "🙂";
-      fruit.style.transform = `scale(${Math.max(0.72, Math.min(1.08, size / 120))})`;
+      fruit.textContent = "🍉";
       bucketGridEl.appendChild(fruit);
-    });
-    for (let i = shown.length; i < 12; i += 1) {
+    }
+    for (let i = collected; i < MAX_SEEDS; i += 1) {
       const empty = document.createElement("span");
       empty.className = "bucket-empty";
       empty.textContent = "·";
@@ -1650,6 +1777,7 @@
     state.harvestedThisRound = [];
     state.usedSeeds = [];
     setMessage(message);
+    renderBucket();
     updateScene();
   }
 
@@ -1737,7 +1865,6 @@
     const personality = state.personalities[melonIndex];
     state.harvestedThisRound.push(melonIndex);
     state.score += 1;
-    state.bucket.push(size);
     animateCharacter(bucketBtn, "party");
     playSound("melon", [personality.voice, personality.voice + 90, personality.voice + 180]);
     renderBucket();
@@ -1750,7 +1877,7 @@
       setMessage(`All picked. ${personality.name} and friends are ready for another round.`);
       setTimeout(() => {
         resetRound("Drag seeds onto the patch for the next round.");
-      }, 500);
+      }, 2400);
     } else {
       burst("PICK!");
       setMessage(`${personality.name} jumped in. ${left} watermelon${left === 1 ? "" : "s"} left.`);
@@ -1911,10 +2038,10 @@
   bucketBtn.addEventListener("click", () => {
     playSound("bucket");
     animateCharacter(bucketBtn, "party");
-    if (state.bucket.length === 0) {
-      setMessage("The bucket is empty. Grow some watermelons first.");
+    if (state.harvestedThisRound.length === 0) {
+      setMessage("The picnic basket is empty. Grow some watermelons first.");
     } else {
-      setMessage(`Your bucket has ${state.bucket.length} watermelon${state.bucket.length === 1 ? "" : "s"}.`);
+      setMessage(`The picnic basket has ${state.harvestedThisRound.length} watermelon${state.harvestedThisRound.length === 1 ? "" : "s"} this round.`);
     }
   });
 
