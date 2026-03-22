@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Watermelon Garden</title>
 <style>
   :root {
-    --sky-top: #9edfff;
-    --sky-bottom: #fff1b3;
-    --grass: #7fd25c;
-    --grass-dark: #4e9c39;
-    --soil: #8d5a2b;
-    --soil-dark: #6f4319;
-    --leaf: #39a652;
-    --leaf-light: #78de84;
-    --card: rgba(255, 248, 232, 0.92);
+    --sky-top: #a4e4ff;
+    --sky-bottom: #fff2b5;
+    --grass: #82d35f;
+    --grass-dark: #4f9a39;
+    --soil: #8d5b2c;
+    --soil-dark: #6a3f18;
+    --leaf: #33a64f;
+    --leaf-light: #7ce084;
+    --card: rgba(255, 248, 232, 0.93);
     --ink: #173125;
     --shadow: rgba(23, 49, 37, 0.18);
   }
@@ -24,56 +24,55 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  html,
   body {
     margin: 0;
-    min-height: 100vh;
+    min-height: 100%;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+
+  body {
     font-family: "Trebuchet MS", "Verdana", sans-serif;
     color: var(--ink);
     background:
-      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.5), transparent 18%),
-      linear-gradient(180deg, var(--sky-top), var(--sky-bottom) 56%, #9fe474 57%, var(--grass) 100%);
-    overflow: hidden;
+      radial-gradient(circle at 18% 14%, rgba(255,255,255,0.52), transparent 18%),
+      linear-gradient(180deg, var(--sky-top), var(--sky-bottom) 56%, #a2e576 57%, var(--grass) 100%);
   }
 
   .game {
     max-width: 1080px;
     min-height: 100vh;
     margin: 0 auto;
-    padding: 14px;
+    padding: 12px;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    gap: 12px;
-  }
-
-  .topbar,
-  .footer {
-    display: grid;
     gap: 10px;
   }
 
   .title-card,
-  .message,
-  .score-card {
+  .score-card,
+  .message {
     background: var(--card);
-    border-radius: 24px;
+    border-radius: 22px;
     box-shadow: 0 12px 24px var(--shadow);
   }
 
   .title-card {
-    padding: 14px 18px;
+    padding: 14px 16px;
     text-align: center;
   }
 
   h1 {
     margin: 0;
-    font-size: clamp(2rem, 4vw, 3.6rem);
+    font-size: clamp(2rem, 4vw, 3.5rem);
     line-height: 0.95;
     color: #166534;
   }
 
   .subtitle {
     margin: 8px 0 0;
-    font-size: clamp(1rem, 2vw, 1.15rem);
+    font-size: clamp(1rem, 2vw, 1.1rem);
     font-weight: 700;
   }
 
@@ -84,7 +83,7 @@
   }
 
   .score-card {
-    padding: 14px 16px;
+    padding: 12px 16px;
     text-align: center;
     font-weight: 800;
   }
@@ -93,19 +92,19 @@
     display: block;
     margin-top: 2px;
     font-size: 1.8rem;
-    color: #145725;
+    color: #145625;
   }
 
   .scene {
     position: relative;
-    min-height: 620px;
-    border-radius: 34px;
+    min-height: 700px;
     overflow: hidden;
+    border-radius: 32px;
     box-shadow: 0 24px 50px var(--shadow);
     background:
-      radial-gradient(circle at 85% 16%, rgba(255,255,255,0.7), transparent 16%),
-      linear-gradient(180deg, rgba(255,255,255,0.18), transparent 24%),
-      linear-gradient(180deg, transparent 58%, rgba(33, 129, 43, 0.18) 100%);
+      radial-gradient(circle at 84% 18%, rgba(255,255,255,0.74), transparent 16%),
+      linear-gradient(180deg, rgba(255,255,255,0.2), transparent 24%),
+      linear-gradient(180deg, transparent 58%, rgba(40, 130, 40, 0.16) 100%);
   }
 
   .grass {
@@ -114,58 +113,64 @@
     right: 0;
     bottom: 0;
     height: 46%;
-    background: linear-gradient(180deg, #91dd69, var(--grass-dark));
+    background: linear-gradient(180deg, #92de69, var(--grass-dark));
   }
 
   .sun,
   .cloud,
   .bird,
   .bucket,
-  .seed {
+  .seed,
+  .melon {
     border: 0;
-    cursor: pointer;
+    padding: 0;
     font: inherit;
+    cursor: pointer;
+    user-select: none;
   }
 
   .sun,
   .cloud,
   .bird,
-  .bucket,
-  .melon,
-  .seed {
+  .bucket {
     touch-action: manipulation;
+  }
+
+  .seed,
+  .melon {
+    touch-action: none;
   }
 
   .sun {
     position: absolute;
-    top: 26px;
-    right: 36px;
-    width: 98px;
-    height: 98px;
+    top: 20px;
+    right: 24px;
+    width: 92px;
+    height: 92px;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #fff7b4, #ffd54d 60%, #f59e0b 100%);
-    box-shadow: 0 0 0 12px rgba(255, 216, 84, 0.22), 0 0 30px rgba(255, 207, 66, 0.45);
+    background: radial-gradient(circle at 35% 35%, #fff7b2, #ffd54d 60%, #f59e0b 100%);
+    box-shadow: 0 0 0 12px rgba(255, 216, 84, 0.2), 0 0 28px rgba(255, 207, 66, 0.44);
   }
 
   .sun::before,
   .sun::after {
     content: "";
     position: absolute;
-    top: 34px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
     background: #6b4200;
   }
 
   .sun::before {
-    left: 28px;
+    top: 30px;
+    left: 24px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
     box-shadow: 28px 0 0 #6b4200;
   }
 
   .sun::after {
-    left: 36px;
-    top: 55px;
+    left: 34px;
+    top: 50px;
     width: 24px;
     height: 10px;
     border-bottom: 4px solid #6b4200;
@@ -175,9 +180,9 @@
 
   .cloud {
     position: absolute;
-    top: 78px;
-    left: 36px;
-    width: 150px;
+    top: 72px;
+    left: 28px;
+    width: 148px;
     height: 62px;
     border-radius: 999px;
     background: rgba(255,255,255,0.95);
@@ -225,11 +230,11 @@
 
   .bird {
     position: absolute;
-    right: 180px;
-    top: 142px;
-    width: 110px;
+    right: 150px;
+    top: 126px;
+    width: 112px;
     height: 84px;
-    background: #ff7da6;
+    background: #ff7ca5;
     border-radius: 50% 52% 48% 48%;
     box-shadow: 0 10px 20px rgba(0,0,0,0.12);
   }
@@ -239,7 +244,7 @@
     position: absolute;
     right: -12px;
     top: 28px;
-    border-left: 20px solid #ffba3b;
+    border-left: 20px solid #ffbb3c;
     border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
   }
@@ -253,7 +258,6 @@
     height: 10px;
     border-radius: 50%;
     background: #1f2130;
-    box-shadow: 30px 6px 0 -2px rgba(255,255,255,0.22);
   }
 
   .bird-wing {
@@ -272,68 +276,47 @@
     bottom: -16px;
     width: 30px;
     height: 18px;
-    border-bottom: 4px solid #ffba3b;
+    border-bottom: 4px solid #ffbb3c;
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
   }
 
-  .seed-bank {
+  .patch-zone {
     position: absolute;
-    left: 20px;
-    bottom: 28px;
-    width: 170px;
-    padding: 12px;
-    border-radius: 22px;
-    background: rgba(255, 248, 232, 0.9);
-    box-shadow: 0 12px 24px var(--shadow);
+    left: 50%;
+    bottom: 218px;
+    width: min(84vw, 420px);
+    height: 280px;
+    transform: translateX(-50%);
+    border-radius: 40px;
+    border: 5px dashed rgba(255,255,255,0.4);
+    transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
   }
 
-  .seed-title {
-    margin: 0 0 8px;
-    text-align: center;
-    font-size: 1rem;
-    font-weight: 900;
-    color: #14562a;
-  }
-
-  .seed-list {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-
-  .seed {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 999px;
-    background: linear-gradient(180deg, #5b3818, #2e1a09);
-    box-shadow: inset 0 5px 0 rgba(255,255,255,0.12), 0 6px 10px rgba(0,0,0,0.12);
-  }
-
-  .seed.used {
-    opacity: 0.22;
-    transform: scale(0.88);
+  .patch-zone.active {
+    transform: translateX(-50%) scale(1.03);
+    border-color: rgba(255,255,255,0.84);
+    background: rgba(255,255,255,0.08);
   }
 
   .patch {
     position: absolute;
     left: 50%;
-    bottom: 100px;
-    transform: translateX(-50%);
-    width: min(80vw, 360px);
+    bottom: 180px;
+    width: min(82vw, 370px);
     height: 150px;
+    transform: translateX(-50%);
     border-radius: 50%;
-    background: radial-gradient(circle at 50% 30%, #a97037, var(--soil) 64%, var(--soil-dark) 100%);
+    background: radial-gradient(circle at 50% 30%, #aa7037, var(--soil) 64%, var(--soil-dark) 100%);
     box-shadow: inset 0 10px 14px rgba(255,255,255,0.12);
   }
 
   .planted-seeds {
     position: absolute;
     left: 50%;
-    bottom: 172px;
-    width: 220px;
-    height: 70px;
+    bottom: 258px;
+    width: 260px;
+    height: 90px;
     transform: translateX(-50%);
   }
 
@@ -342,7 +325,7 @@
     width: 18px;
     height: 24px;
     border-radius: 999px;
-    background: linear-gradient(180deg, #5b3818, #2e1a09);
+    background: linear-gradient(180deg, #5b3818, #2d1808);
     opacity: 0;
     transition: opacity 0.18s ease, transform 0.18s ease;
   }
@@ -355,19 +338,19 @@
   .plant {
     position: absolute;
     left: 50%;
-    bottom: 186px;
-    transform: translateX(-50%);
-    width: 240px;
+    bottom: 292px;
+    width: min(76vw, 360px);
     height: 250px;
+    transform: translateX(-50%);
   }
 
   .vine {
     position: absolute;
     left: 50%;
-    bottom: 38px;
-    transform: translateX(-50%);
+    bottom: 18px;
     width: 14px;
     height: 0;
+    transform: translateX(-50%);
     border-radius: 999px;
     background: linear-gradient(180deg, #58d36b, #218844);
     transition: height 0.25s ease;
@@ -384,31 +367,32 @@
   }
 
   .leaf.left {
-    left: 54px;
-    bottom: 110px;
+    left: 86px;
+    bottom: 108px;
     transform: rotate(-18deg);
   }
 
   .leaf.right {
-    right: 54px;
-    bottom: 142px;
-    transform: scaleX(-1) rotate(-20deg);
+    right: 86px;
+    bottom: 144px;
+    transform: scaleX(-1) rotate(-18deg);
+  }
+
+  .melon-layer {
+    position: absolute;
+    inset: 0;
   }
 
   .melon {
     position: absolute;
-    left: 50%;
-    bottom: 30px;
-    transform: translateX(-50%) scale(0.2);
-    width: 56px;
-    height: 56px;
-    border: 0;
+    width: 58px;
+    height: 58px;
     border-radius: 50%;
     background:
       repeating-linear-gradient(90deg, #47b256 0 10px, #1c7432 10px 15px, #87e28a 15px 20px);
     box-shadow: inset 0 10px 0 rgba(255,255,255,0.18), 0 12px 18px rgba(23,49,37,0.16);
+    transform: scale(0);
     transition: width 0.22s ease, height 0.22s ease, transform 0.22s ease;
-    cursor: pointer;
   }
 
   .melon::before,
@@ -437,17 +421,24 @@
     transform: translateX(-50%);
   }
 
-  .melon.grown {
-    transform: translateX(-50%) scale(1);
+  .melon.show {
+    transform: scale(1);
     animation: bob 1s ease-in-out infinite;
+  }
+
+  .melon.picked {
+    opacity: 0.18;
+    transform: scale(0);
+    animation: none;
+    pointer-events: none;
   }
 
   .bucket {
     position: absolute;
-    right: 26px;
-    bottom: 32px;
-    width: 190px;
-    min-height: 200px;
+    right: 20px;
+    bottom: 26px;
+    width: 200px;
+    min-height: 210px;
     padding: 14px;
     border-radius: 26px;
     background: linear-gradient(180deg, #d59d58, #9b5e20);
@@ -467,8 +458,13 @@
     border-radius: 38px 38px 0 0;
   }
 
+  .bucket.active {
+    transform: scale(1.03);
+  }
+
   .bucket-title {
-    margin: 0 0 10px;
+    display: block;
+    margin-bottom: 10px;
     text-align: center;
     font-size: 1.05rem;
     font-weight: 900;
@@ -488,7 +484,7 @@
     border-radius: 50%;
     display: grid;
     place-items: center;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 
   .bucket-fruit {
@@ -504,28 +500,83 @@
     color: rgba(255,255,255,0.4);
   }
 
+  .seed-bank {
+    position: absolute;
+    left: 20px;
+    bottom: 24px;
+    width: 186px;
+    padding: 12px;
+    border-radius: 22px;
+    background: rgba(255, 248, 232, 0.92);
+    box-shadow: 0 12px 24px var(--shadow);
+  }
+
+  .seed-title {
+    margin: 0 0 8px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 900;
+    color: #14562a;
+  }
+
+  .seed-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .seed {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #5b3818, #2d1808);
+    box-shadow: inset 0 5px 0 rgba(255,255,255,0.12), 0 6px 10px rgba(0,0,0,0.12);
+  }
+
+  .seed.used {
+    opacity: 0.16;
+    transform: scale(0.85);
+  }
+
+  .seed.dragging,
+  .melon.dragging {
+    opacity: 0.7;
+  }
+
+  .drag-ghost {
+    position: fixed;
+    z-index: 30;
+    pointer-events: none;
+    width: 90px;
+    height: 90px;
+    display: grid;
+    place-items: center;
+    font-size: 2.7rem;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 10px 12px rgba(0,0,0,0.18));
+  }
+
   .burst,
   .song-notes {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
     pointer-events: none;
-    font-weight: 900;
     opacity: 0;
+    font-weight: 900;
   }
 
   .burst {
-    bottom: 392px;
+    left: 50%;
+    bottom: 520px;
+    transform: translateX(-50%);
     font-size: 2rem;
     color: white;
-    text-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    text-shadow: 0 4px 10px rgba(0,0,0,0.18);
   }
 
   .song-notes {
-    right: 158px;
-    left: auto;
-    top: 110px;
-    transform: none;
+    right: 150px;
+    top: 108px;
     font-size: 2rem;
   }
 
@@ -534,7 +585,7 @@
     width: 10px;
     height: 28px;
     border-radius: 999px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.15), rgba(25, 144, 221, 0.95));
+    background: linear-gradient(180deg, rgba(255,255,255,0.15), rgba(25,144,221,0.95));
     animation: rain-fall 0.8s linear forwards;
     pointer-events: none;
   }
@@ -553,8 +604,8 @@
   }
 
   @keyframes bob {
-    0%, 100% { transform: translateX(-50%) scale(1) translateY(0); }
-    50% { transform: translateX(-50%) scale(1.04) translateY(-10px); }
+    0%, 100% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.04) translateY(-10px); }
   }
 
   @keyframes rain-fall {
@@ -565,28 +616,21 @@
 
   @media (max-width: 820px) {
     .scene {
-      min-height: 780px;
-    }
-
-    .bucket {
-      right: 18px;
-      bottom: 18px;
-      width: 160px;
-    }
-
-    .seed-bank {
-      width: 150px;
+      min-height: 820px;
     }
 
     .bird {
-      right: 130px;
-      top: 150px;
+      right: 126px;
+    }
+
+    .bucket {
+      width: 170px;
     }
   }
 
   @media (max-width: 640px) {
     .game {
-      padding: 10px;
+      padding: 8px;
     }
 
     .hud {
@@ -594,41 +638,64 @@
     }
 
     .scene {
-      min-height: 920px;
-    }
-
-    .cloud {
-      left: 16px;
-      top: 98px;
-      transform: scale(0.9);
-      transform-origin: left top;
+      min-height: 980px;
     }
 
     .sun {
-      right: 18px;
-      top: 22px;
+      top: 18px;
+      right: 16px;
       transform: scale(0.88);
       transform-origin: right top;
     }
 
+    .cloud {
+      left: 12px;
+      top: 92px;
+      transform: scale(0.88);
+      transform-origin: left top;
+    }
+
     .bird {
-      right: 24px;
-      top: 176px;
-      transform: scale(0.9);
+      top: 166px;
+      right: 18px;
+      transform: scale(0.88);
       transform-origin: right top;
     }
 
+    .patch-zone {
+      bottom: 320px;
+      width: min(92vw, 380px);
+    }
+
     .patch {
-      bottom: 230px;
-      width: min(88vw, 340px);
+      bottom: 272px;
+      width: min(90vw, 350px);
     }
 
     .planted-seeds {
-      bottom: 304px;
+      bottom: 350px;
+      width: 230px;
     }
 
     .plant {
-      bottom: 318px;
+      bottom: 388px;
+      width: min(88vw, 330px);
+    }
+
+    .bucket {
+      left: 50%;
+      right: auto;
+      bottom: 154px;
+      width: min(86vw, 280px);
+      transform: translateX(-50%);
+    }
+
+    .bucket.active {
+      transform: translateX(-50%) scale(1.03);
+    }
+
+    .bucket-grid {
+      grid-template-columns: repeat(4, 1fr);
     }
 
     .seed-bank {
@@ -638,16 +705,13 @@
       transform: translateX(-50%);
     }
 
-    .bucket {
-      left: 50%;
-      right: auto;
-      bottom: 160px;
-      width: min(86vw, 280px);
-      transform: translateX(-50%);
+    .burst {
+      bottom: 620px;
     }
 
-    .bucket-grid {
-      grid-template-columns: repeat(4, 1fr);
+    .song-notes {
+      right: 26px;
+      top: 138px;
     }
   }
 </style>
@@ -657,11 +721,11 @@
     <section class="topbar">
       <div class="title-card">
         <h1>Watermelon Garden</h1>
-        <p class="subtitle">Click seeds to plant them. Then click the cloud, the sun, and the bird. When the watermelon is big enough, click it to toss it into the bucket.</p>
+        <p class="subtitle">Drag up to 6 seeds onto the patch. Then click the cloud, click the sun, click the bird, and drag each watermelon into the bucket.</p>
       </div>
       <div class="hud">
         <div class="score-card">Watermelons Picked<strong id="score">0</strong></div>
-        <div class="score-card">What To Do<strong id="need">Plant 5 seeds</strong></div>
+        <div class="score-card">What To Do<strong id="need">Drag seeds to the patch</strong></div>
       </div>
     </section>
 
@@ -679,14 +743,16 @@
         <span class="bird-legs"></span>
       </button>
 
+      <div class="patch-zone" id="patchZone"></div>
       <div class="patch" aria-hidden="true"></div>
 
-      <div class="planted-seeds" id="plantedSeeds">
-        <div class="planted-seed" style="left:10px;bottom:0;"></div>
-        <div class="planted-seed" style="left:52px;bottom:14px;"></div>
-        <div class="planted-seed" style="left:98px;bottom:4px;"></div>
-        <div class="planted-seed" style="left:142px;bottom:16px;"></div>
-        <div class="planted-seed" style="left:184px;bottom:2px;"></div>
+      <div class="planted-seeds">
+        <div class="planted-seed" style="left:4px;bottom:8px;"></div>
+        <div class="planted-seed" style="left:40px;bottom:22px;"></div>
+        <div class="planted-seed" style="left:80px;bottom:10px;"></div>
+        <div class="planted-seed" style="left:116px;bottom:26px;"></div>
+        <div class="planted-seed" style="left:156px;bottom:12px;"></div>
+        <div class="planted-seed" style="left:194px;bottom:22px;"></div>
       </div>
 
       <div class="plant">
@@ -695,7 +761,14 @@
         <div class="vine" id="vine"></div>
         <div class="leaf left" id="leafLeft"></div>
         <div class="leaf right" id="leafRight"></div>
-        <button class="melon" id="melonBtn" type="button" aria-label="Watermelon"></button>
+        <div class="melon-layer" id="melonLayer">
+          <button class="melon" data-index="0" type="button" aria-label="Watermelon 1"></button>
+          <button class="melon" data-index="1" type="button" aria-label="Watermelon 2"></button>
+          <button class="melon" data-index="2" type="button" aria-label="Watermelon 3"></button>
+          <button class="melon" data-index="3" type="button" aria-label="Watermelon 4"></button>
+          <button class="melon" data-index="4" type="button" aria-label="Watermelon 5"></button>
+          <button class="melon" data-index="5" type="button" aria-label="Watermelon 6"></button>
+        </div>
       </div>
 
       <button class="bucket" id="bucketBtn" type="button" aria-label="Bucket of picked watermelons">
@@ -705,24 +778,33 @@
 
       <div class="seed-bank">
         <p class="seed-title">Seed Pile</p>
-        <div class="seed-list" id="seedList">
-          <button class="seed" type="button" aria-label="Seed 1"></button>
-          <button class="seed" type="button" aria-label="Seed 2"></button>
-          <button class="seed" type="button" aria-label="Seed 3"></button>
-          <button class="seed" type="button" aria-label="Seed 4"></button>
-          <button class="seed" type="button" aria-label="Seed 5"></button>
-          <button class="seed" type="button" aria-label="Seed 6"></button>
+        <div class="seed-list">
+          <button class="seed" data-index="0" type="button" aria-label="Seed 1"></button>
+          <button class="seed" data-index="1" type="button" aria-label="Seed 2"></button>
+          <button class="seed" data-index="2" type="button" aria-label="Seed 3"></button>
+          <button class="seed" data-index="3" type="button" aria-label="Seed 4"></button>
+          <button class="seed" data-index="4" type="button" aria-label="Seed 5"></button>
+          <button class="seed" data-index="5" type="button" aria-label="Seed 6"></button>
         </div>
       </div>
     </section>
 
     <section class="footer">
-      <div class="message" id="message">Click five seeds to plant your watermelon patch.</div>
+      <div class="message" id="message">Drag seeds onto the patch to start planting.</div>
     </section>
   </main>
 
 <script>
-  const SEEDS_TO_PLANT = 5;
+  const MAX_SEEDS = 6;
+  const MELON_POSITIONS = [
+    { left: 130, top: 150 },
+    { left: 60, top: 126 },
+    { left: 196, top: 122 },
+    { left: 92, top: 82 },
+    { left: 164, top: 72 },
+    { left: 128, top: 34 }
+  ];
+
   const state = {
     planted: 0,
     watered: false,
@@ -730,6 +812,11 @@
     sung: 0,
     score: 0,
     bucket: [],
+    harvestedThisRound: [],
+    usedSeeds: [],
+    dragging: null,
+    ghost: null,
+    pointerId: null,
     audioContext: null
   };
 
@@ -737,19 +824,20 @@
   const needEl = document.getElementById("need");
   const messageEl = document.getElementById("message");
   const sceneEl = document.getElementById("scene");
-  const seedButtons = [...document.querySelectorAll(".seed")];
-  const plantedSeedEls = [...document.querySelectorAll(".planted-seed")];
+  const patchZoneEl = document.getElementById("patchZone");
+  const bucketBtn = document.getElementById("bucketBtn");
   const cloudBtn = document.getElementById("cloudBtn");
   const sunBtn = document.getElementById("sunBtn");
   const birdBtn = document.getElementById("birdBtn");
-  const melonBtn = document.getElementById("melonBtn");
-  const bucketBtn = document.getElementById("bucketBtn");
   const bucketGridEl = document.getElementById("bucketGrid");
+  const plantedSeedEls = [...document.querySelectorAll(".planted-seed")];
   const vineEl = document.getElementById("vine");
   const leafLeftEl = document.getElementById("leafLeft");
   const leafRightEl = document.getElementById("leafRight");
   const burstEl = document.getElementById("burst");
   const songNotesEl = document.getElementById("songNotes");
+  const seedButtons = [...document.querySelectorAll(".seed")];
+  const melonButtons = [...document.querySelectorAll(".melon")];
 
   function getAudioContext() {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -773,26 +861,31 @@
 
     const now = ctx.currentTime;
     const tones = {
-      seed: [420],
-      cloud: [280, 240, 210],
+      seed: [420, 520],
+      cloud: [260, 220, 190],
       sun: [520, 640],
       bird: [660, 740, 880],
       melon: [380, 520, 680],
-      bucket: [250, 190]
+      bucket: [250, 190],
+      error: [180],
+      drop: [300, 360]
     };
 
     tones[type].forEach((freq, index) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = type === "cloud" ? "sine" : type === "bird" ? "triangle" : "square";
+      osc.type =
+        type === "cloud" ? "sine" :
+        type === "bird" ? "triangle" :
+        type === "error" ? "sawtooth" : "square";
       osc.frequency.setValueAtTime(freq, now + index * 0.05);
       gain.gain.setValueAtTime(0.0001, now + index * 0.05);
       gain.gain.linearRampToValueAtTime(0.08, now + index * 0.05 + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.05 + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.05 + 0.22);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(now + index * 0.05);
-      osc.stop(now + index * 0.05 + 0.22);
+      osc.stop(now + index * 0.05 + 0.24);
     });
   }
 
@@ -827,7 +920,7 @@
     for (let i = 0; i < 14; i += 1) {
       const drop = document.createElement("div");
       drop.className = "rain-drop";
-      drop.style.left = `${32 + Math.random() * 36}%`;
+      drop.style.left = `${34 + Math.random() * 34}%`;
       drop.style.top = "110px";
       drop.style.animationDelay = `${Math.random() * 0.12}s`;
       sceneEl.appendChild(drop);
@@ -836,8 +929,8 @@
   }
 
   function getNeedText() {
-    if (state.planted < SEEDS_TO_PLANT) {
-      return `Plant ${SEEDS_TO_PLANT - state.planted} more seeds`;
+    if (state.planted === 0) {
+      return "Drag seeds to the patch";
     }
     if (!state.watered) {
       return "Click the cloud";
@@ -845,93 +938,237 @@
     if (!state.sunned) {
       return "Click the sun";
     }
-    return state.sung === 0 ? "Click the bird" : "Bird or watermelon";
+    if (state.sung === 0) {
+      return "Click the bird";
+    }
+    return `${state.planted - state.harvestedThisRound.length} melons left to pick`;
   }
 
   function getMelonSize() {
     if (state.sung === 0) {
-      return 56;
+      return 58;
     }
-    return Math.min(220, 92 + (state.sung - 1) * 22);
+    return Math.min(190, 72 + state.sung * 16);
   }
 
   function updateScene() {
     scoreEl.textContent = String(state.score);
     needEl.textContent = getNeedText();
 
-    plantedSeedEls.forEach((el, index) => {
-      el.classList.toggle("show", index < state.planted);
+    seedButtons.forEach((seed, index) => {
+      seed.classList.toggle("used", state.usedSeeds.includes(index));
     });
 
-    vineEl.style.height = state.watered ? "110px" : "0";
+    plantedSeedEls.forEach((seed, index) => {
+      seed.classList.toggle("show", index < state.planted);
+    });
+
+    vineEl.style.height = state.watered ? "112px" : "0";
     leafLeftEl.style.opacity = state.sunned ? "1" : "0";
     leafRightEl.style.opacity = state.sunned ? "1" : "0";
 
     const melonSize = getMelonSize();
-    melonBtn.style.width = `${melonSize}px`;
-    melonBtn.style.height = `${melonSize}px`;
-    melonBtn.classList.toggle("grown", state.sung > 0);
+    melonButtons.forEach((melon, index) => {
+      const pos = MELON_POSITIONS[index];
+      melon.style.left = `${pos.left}px`;
+      melon.style.top = `${pos.top}px`;
+      melon.style.width = `${melonSize}px`;
+      melon.style.height = `${melonSize}px`;
+      const visible = state.sung > 0 && index < state.planted && !state.harvestedThisRound.includes(index);
+      melon.classList.toggle("show", visible);
+      melon.classList.toggle("picked", state.harvestedThisRound.includes(index));
+    });
   }
 
   function renderBucket() {
     bucketGridEl.innerHTML = "";
     const shown = state.bucket.slice(-12);
     shown.forEach((size) => {
-      const fruit = document.createElement("div");
+      const fruit = document.createElement("span");
       fruit.className = "bucket-fruit";
-      fruit.textContent = size >= 150 ? "🍉" : "🙂";
-      fruit.style.transform = `scale(${Math.max(0.72, Math.min(1.08, size / 135))})`;
+      fruit.textContent = size >= 120 ? "🍉" : "🙂";
+      fruit.style.transform = `scale(${Math.max(0.72, Math.min(1.08, size / 120))})`;
       bucketGridEl.appendChild(fruit);
     });
     for (let i = shown.length; i < 12; i += 1) {
-      const empty = document.createElement("div");
+      const empty = document.createElement("span");
       empty.className = "bucket-empty";
       empty.textContent = "·";
       bucketGridEl.appendChild(empty);
     }
   }
 
-  function resetRound(message = "Click five seeds to plant your watermelon patch.") {
+  function resetRound(message = "Drag seeds onto the patch to start planting.") {
     state.planted = 0;
     state.watered = false;
     state.sunned = false;
     state.sung = 0;
-    seedButtons.forEach((btn) => btn.classList.remove("used"));
+    state.harvestedThisRound = [];
+    state.usedSeeds = [];
     setMessage(message);
     updateScene();
   }
 
-  seedButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      playSound("seed");
-      if (state.planted >= SEEDS_TO_PLANT) {
-        setMessage("All the seeds are planted. Now click the cloud.");
-        burst("DONE!");
-        return;
-      }
-      if (button.classList.contains("used")) {
-        setMessage("That seed is already planted.");
-        burst("PLOP!");
-        return;
-      }
+  function pointInside(event, element) {
+    const rect = element.getBoundingClientRect();
+    return event.clientX >= rect.left &&
+      event.clientX <= rect.right &&
+      event.clientY >= rect.top &&
+      event.clientY <= rect.bottom;
+  }
 
-      button.classList.add("used");
-      state.planted += 1;
-      updateScene();
-      burst("PLOP!");
+  function moveGhost(event) {
+    if (!state.ghost) {
+      return;
+    }
+    state.ghost.style.left = `${event.clientX}px`;
+    state.ghost.style.top = `${event.clientY}px`;
+  }
 
-      if (state.planted >= SEEDS_TO_PLANT) {
-        setMessage("Nice planting. Now click the cloud to water the patch.");
+  function cleanupDrag() {
+    patchZoneEl.classList.remove("active");
+    bucketBtn.classList.remove("active");
+    if (state.dragging?.sourceEl) {
+      state.dragging.sourceEl.classList.remove("dragging");
+    }
+    if (state.ghost) {
+      state.ghost.remove();
+    }
+    state.dragging = null;
+    state.ghost = null;
+    state.pointerId = null;
+  }
+
+  function startDrag(event, type, index, sourceEl, emoji) {
+    playSound(type === "seed" ? "seed" : "melon");
+    state.pointerId = event.pointerId;
+    state.dragging = { type, index, sourceEl };
+    sourceEl.classList.add("dragging");
+
+    const ghost = document.createElement("div");
+    ghost.className = "drag-ghost";
+    ghost.textContent = emoji;
+    document.body.appendChild(ghost);
+    state.ghost = ghost;
+    moveGhost(event);
+
+    sourceEl.setPointerCapture(event.pointerId);
+    if (type === "seed") {
+      patchZoneEl.classList.add("active");
+    } else {
+      bucketBtn.classList.add("active");
+    }
+  }
+
+  function finishSeedDrop(seedIndex) {
+    if (state.usedSeeds.includes(seedIndex)) {
+      playSound("error");
+      setMessage("That seed is already planted.");
+      burst("OOPS");
+      return;
+    }
+
+    state.usedSeeds.push(seedIndex);
+    state.planted += 1;
+    playSound("drop");
+    burst("PLOP!");
+    updateScene();
+
+    if (state.planted === 1) {
+      setMessage("Nice. Plant more seeds or move on when you are ready.");
+    } else {
+      setMessage(`${state.planted} seeds planted. That means ${state.planted} watermelons will grow.`);
+    }
+  }
+
+  function finishMelonDrop(melonIndex) {
+    if (state.harvestedThisRound.includes(melonIndex)) {
+      return;
+    }
+    const size = getMelonSize();
+    state.harvestedThisRound.push(melonIndex);
+    state.score += 1;
+    state.bucket.push(size);
+    playSound("bucket");
+    renderBucket();
+    updateScene();
+
+    const left = state.planted - state.harvestedThisRound.length;
+    if (left === 0) {
+      burst("YUM!");
+      setMessage("All the watermelons are picked. Plant another patch.");
+      setTimeout(() => {
+        resetRound("Drag seeds onto the patch for the next round.");
+      }, 500);
+    } else {
+      burst("PICK!");
+      setMessage(`${left} watermelon${left === 1 ? "" : "s"} left to drag into the bucket.`);
+    }
+  }
+
+  function endDrag(event) {
+    if (!state.dragging) {
+      return;
+    }
+
+    const { type, index } = state.dragging;
+    if (type === "seed") {
+      if (pointInside(event, patchZoneEl)) {
+        finishSeedDrop(index);
       } else {
-        setMessage(`${state.planted} seeds planted. Keep going.`);
+        playSound("error");
+        setMessage("Drop the seed on the patch.");
+      }
+    } else if (pointInside(event, bucketBtn)) {
+      finishMelonDrop(index);
+    } else {
+      playSound("error");
+      setMessage("Drag the watermelon into the bucket.");
+    }
+
+    cleanupDrag();
+  }
+
+  seedButtons.forEach((seed, index) => {
+    seed.addEventListener("pointerdown", (event) => {
+      if (state.usedSeeds.includes(index)) {
+        playSound("error");
+        setMessage("That seed is already planted.");
+        return;
+      }
+      startDrag(event, "seed", index, seed, "🌱");
+    });
+    seed.addEventListener("pointermove", (event) => {
+      if (state.pointerId === event.pointerId) {
+        moveGhost(event);
       }
     });
+    seed.addEventListener("pointerup", endDrag);
+    seed.addEventListener("pointercancel", cleanupDrag);
+  });
+
+  melonButtons.forEach((melon, index) => {
+    melon.addEventListener("pointerdown", (event) => {
+      if (state.sung === 0 || index >= state.planted || state.harvestedThisRound.includes(index)) {
+        playSound("error");
+        setMessage("Grow the watermelons first.");
+        return;
+      }
+      startDrag(event, "melon", index, melon, "🍉");
+    });
+    melon.addEventListener("pointermove", (event) => {
+      if (state.pointerId === event.pointerId) {
+        moveGhost(event);
+      }
+    });
+    melon.addEventListener("pointerup", endDrag);
+    melon.addEventListener("pointercancel", cleanupDrag);
   });
 
   cloudBtn.addEventListener("click", () => {
     playSound("cloud");
-    if (state.planted < SEEDS_TO_PLANT) {
-      setMessage("Plant the seeds first.");
+    if (state.planted === 0) {
+      setMessage("Plant at least one seed first.");
       burst("WAIT!");
       return;
     }
@@ -985,37 +1222,17 @@
     updateScene();
     if (state.sung === 1) {
       burst("GROW!");
-      setMessage("The watermelon grew. Click the bird again to make it bigger, or click the watermelon to pick it.");
+      setMessage(`${state.planted} watermelons grew. Drag each one into the bucket.`);
     } else {
       burst("BIGGER!");
-      setMessage("The watermelon got even bigger. Click the bird again or pick it now.");
+      setMessage("The watermelons got bigger. Drag them out or keep singing.");
     }
-  });
-
-  melonBtn.addEventListener("click", () => {
-    playSound("melon");
-    if (state.sung === 0) {
-      setMessage("The watermelon is not ready yet. Let the bird sing first.");
-      burst("WAIT!");
-      return;
-    }
-
-    const size = getMelonSize();
-    state.score += 1;
-    state.bucket.push(size);
-    renderBucket();
-    updateScene();
-    burst("YUM!");
-    setMessage("Plop. The watermelon went into the bucket. Plant another patch.");
-    setTimeout(() => {
-      resetRound("Click five seeds to plant your next watermelon patch.");
-    }, 450);
   });
 
   bucketBtn.addEventListener("click", () => {
     playSound("bucket");
     if (state.bucket.length === 0) {
-      setMessage("The bucket is empty. Grow one first.");
+      setMessage("The bucket is empty. Grow some watermelons first.");
     } else {
       setMessage(`Your bucket has ${state.bucket.length} watermelon${state.bucket.length === 1 ? "" : "s"}.`);
     }
